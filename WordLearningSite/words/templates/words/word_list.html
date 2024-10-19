@@ -18,31 +18,40 @@
             margin-bottom: 20px;
         }
 
-        .word-container {
+        .slider {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
+            overflow-x: auto; /* 수평 스크롤 가능 */
+            padding: 10px;
+            scroll-snap-type: x mandatory; /* 스크롤 스냅 설정 */
         }
 
         .word-card {
-            background: white;
+            background: #e3f2fd; /* 연한 파란색 */
             border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             padding: 20px;
             text-align: center;
             width: 200px; /* 카드 너비 */
-            transition: transform 0.3s, box-shadow 0.3s;
+            margin-right: 15px; /* 카드 간격 */
+            scroll-snap-align: start; /* 스크롤 스냅 정렬 */
+            flex-shrink: 0; /* 카드 크기 고정 */
+            display: inline-block; /* 인라인 블록으로 변경 */
         }
 
-        .word-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        .word {
+            font-size: 1.5em;
+            color: #333;
+            overflow-wrap: break-word;
         }
 
         .word-definition {
             font-size: 0.9em;
             color: #666;
+        }
+
+        .random-word {
+            text-align: center; /* 텍스트 중앙 정렬 */
+            margin: 20px 0; /* 상하 여백 추가 */
         }
 
         .button-container {
@@ -58,6 +67,7 @@
             border-radius: 5px;
             text-decoration: none;
             transition: background-color 0.3s;
+            margin: 5px;
         }
 
         a:hover {
@@ -66,31 +76,54 @@
 
         @media (max-width: 600px) {
             .word-card {
-                width: 90%; /* 모바일에서는 카드 너비를 90%로 설정 */
+                width: 90%;
             }
 
             a {
-                width: 90%; /* 모바일에서는 버튼 너비를 90%로 설정 */
+                width: 90%;
             }
         }
     </style>
 </head>
 <body>
-    <h2>Your Word List</h2>
-    <div class="word-container">
+    <h2>내 단어 목록</h2>
+    <div class="slider">
         {% for word in words %}
             <div class="word-card">
-                <p>
-                    <strong>{{ word.kanji }}</strong> ({{ word.hiragana }}) - {{ word.definition }}
+                <p class="word">
+                    <strong>{{ word.kanji|default_if_none:'' }}</strong> 
+                    {% if word.hiragana %}
+                        ({{ word.hiragana }})
+                    {% endif %}
                 </p>
+                <span class="word-definition">{{ word.definition }}</span>
             </div>
         {% empty %}
             <p>No words found. Add some words to your list!</p>
         {% endfor %}
     </div>
+
+    <div class="random-word">
+        <h3>오늘의 랜덤 단어</h3>
+        {% if random_word %}
+            <div class="word-card">
+                <p class="word">
+                    <strong>{{ random_word.kanji }}</strong>
+                    {% if random_word.hiragana %}
+                        ({{ random_word.hiragana }})
+                    {% endif %}
+                </p>
+                <span class="word-definition">{{ random_word.definition }}</span>
+            </div>
+        {% else %}
+            <p>랜덤 단어가 없습니다.</p>
+        {% endif %}
+    </div>
+
     <div class="button-container">
         <a href="{% url 'words:add_word' %}">단어 추가하기</a>
-        <a href="{% url 'words:quiz' %}">단어 퀴즈</a>
+        <a href="{% url 'words:quiz' %}">한자 퀴즈</a>
+        <a href="{% url 'words:quiz2' %}">단어 퀴즈</a>
     </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>퀴즈</title>
+    <title>퀴즈 2</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery 추가 -->
     <style>
         body {
@@ -105,72 +105,56 @@
     </style>
 </head>
 <body>
-    <h2>퀴즈</h2>
-    {% if correct_word %}
-        {% if selected_words|length > 0 %}
-            <p>다음 한자 "{{ correct_word.kanji }}"의 올바른 히라가나는 무엇인가요?</p> <!-- 한자 표시 -->
-            <form id="quiz-form" method="post">
-                {% csrf_token %}
-                <input type="hidden" name="correct_hiragana" value="{{ correct_word.hiragana }}"> <!-- 정답 히라가나 저장 -->
-                <input type="hidden" name="correct_definition" value="{{ correct_word.definition }}"> <!-- 정답 뜻 저장 -->
-                {% for word in selected_words %}
-                    <div>
-                        <input type="radio" name="selected_hiragana" value="{{ word.hiragana }}" id="{{ word.hiragana }}">
-                        <label for="{{ word.hiragana }}">{{ word.hiragana }}</label> <!-- 히라가나 표시 -->
-                    </div>
-                {% endfor %}
-                <button type="submit">제출하기</button>
-            </form>
-        {% else %}
-            <p>단어가 없습니다. 다음으로 넘어갑니다.</p> <!-- 단어가 없을 때 메시지 -->
-            <button id="next-quiz">다음 퀴즈</button> <!-- 다음 퀴즈 버튼 -->
-        {% endif %}
-    {% else %}
-        <p>다음 히라가나는 무엇인가요?</p> <!-- 한자가 없을 때 히라가나 질문 -->
-    {% endif %}
+    <h2>퀴즈 2</h2>
+    <p>다음 뜻에 해당하는 히라가나는 무엇인가요?</p> <!-- 질문 변경 -->
+    <p><strong>뜻: "{{ correct_word.definition }}"</strong></p> <!-- 뜻 표시 -->
+    <form id="quiz-form" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="correct_hiragana" value="{{ correct_word.hiragana }}"> <!-- 정답 히라가나 저장 -->
+        {% for word in selected_words %}
+            <div>
+                <input type="radio" name="selected_hiragana" value="{{ word.hiragana }}" id="{{ word.hiragana }}" class="hiragana-option">
+                <label for="{{ word.hiragana }}">{{ word.hiragana }}</label> <!-- 히라가나 표시 -->
+            </div>
+        {% endfor %}
+        <button type="submit">제출하기</button>
+    </form>
 
     <a href="/words">메뉴로 가기</a>
 
     <div id="result"></div> <!-- 결과 표시할 div 추가 -->
 
     <script>
-        $(document).ready(function() {
-            $('#quiz-form').on('submit', function(event) {
-                event.preventDefault(); // 기본 폼 제출 방지
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "words:check_quiz" %}', // 결과를 처리할 URL
-                    data: $(this).serialize(), // 폼 데이터 직렬화
-                    success: function(response) {
-                        // 결과를 화면에 표시
-                        const resultMessage = response.is_correct ? 
-                            '<p class="correct">정답입니다!</p>' : 
-                            '<p class="incorrect">틀렸습니다.</p>';
+        $('#quiz-form').on('submit', function(event) {
+            event.preventDefault(); // 기본 폼 제출 방지
+            $.ajax({
+                type: 'POST',
+                url: '{% url "words:check_quiz2" %}', // 결과를 처리할 URL
+                data: $(this).serialize(), // 폼 데이터 직렬화
+                success: function(response) {
+                    // 결과를 화면에 표시
+                    const resultMessage = response.is_correct ? 
+                        '<p class="correct">정답입니다!</p>' : 
+                        '<p class="incorrect">틀렸습니다.</p>';
 
-                        $('#result').html('<h3>퀴즈 결과</h3>' + 
-                            resultMessage +
-                            '<p>정답 히라가나는 "' + response.correct_hiragana + '"입니다.</p>' + // 올바른 히라가나 표시
-                            '<p>뜻: "' + response.correct_definition + '"입니다.</p>' + // 올바른 뜻 표시
-                            '<button id="next-quiz">다음 퀴즈</button>' // 다음 퀴즈 버튼 추가
-                        );
+                    $('#result').html('<h3>퀴즈 결과</h3>' + 
+                        resultMessage +
+                        '<p>정답 히라가나는 "' + response.correct_hiragana + '"입니다.</p>' + // 올바른 히라가나 표시
+                        '<p>뜻: "' + response.correct_definition + '"입니다.</p>' + // 올바른 뜻 표시
+                        '<button id="next-quiz">다음 퀴즈</button>' // 다음 퀴즈 버튼 추가
+                    );
 
-                        // 다음 퀴즈 버튼 클릭 이벤트 핸들러
-                        $('#next-quiz').on('click', function() {
-                            window.location.href = '{% url "words:quiz" %}'; // 새 퀴즈를 가져오는 URL
-                        });
-                    },
-                    error: function(xhr, status, error) {
-                        $('#result').html('<h3>오류 발생</h3>' + 
-                            '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>'
-                        );
-                        console.log(error); // 오류 메시지 출력 (개발 시에만)
-                    }
-                });
-            });
-
-            // 단어가 없을 때 다음 퀴즈 버튼 클릭 이벤트 핸들러
-            $('#next-quiz').on('click', function() {
-                window.location.href = '{% url "words:quiz" %}'; // 새 퀴즈를 가져오는 URL
+                    // 다음 퀴즈 버튼 클릭 이벤트 핸들러
+                    $('#next-quiz').on('click', function() {
+                        window.location.href = '{% url "words:quiz2" %}'; // 새 퀴즈를 가져오는 URL
+                    });
+                },
+                error: function(xhr, status, error) {
+                    $('#result').html('<h3>오류 발생</h3>' + 
+                        '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>'
+                    );
+                    console.log(error); // 오류 메시지 출력 (개발 시에만)
+                }
             });
         });
     </script>

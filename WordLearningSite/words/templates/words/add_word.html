@@ -27,6 +27,7 @@
             padding: 20px;
             width: 90%; /* 모바일에 적합한 너비 */
             max-width: 500px; /* 최대 너비 설정 */
+            box-sizing: border-box; /* 박스 크기 설정 */
         }
 
         input[type="text"], input[type="number"], textarea {
@@ -72,13 +73,33 @@
         a:hover {
             text-decoration: underline; /* 호버 시 밑줄 추가 */
         }
+
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 1.5em; /* 작은 화면에서 제목 크기 조정 */
+            }
+            input[type="text"], input[type="number"], textarea {
+                font-size: 14px; /* 입력 필드 글자 크기 조정 */
+            }
+            button {
+                font-size: 14px; /* 버튼 글자 크기 조정 */
+            }
+        }
     </style>
 </head>
 <body>
     <h2>단어 추가</h2>
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        <label for="kanji">한자 (선택사항):</label>
+        <input type="text" id="kanji" name="kanji" placeholder="한자를 입력하세요 (선택사항)">
+        
+        <label for="hiragana">히라가나:</label>
+        <input type="text" id="hiragana" name="hiragana" required placeholder="히라가나를 입력하세요">
+        
+        <label for="definition">뜻:</label>
+        <textarea id="definition" name="definition" required placeholder="뜻을 입력하세요"></textarea>
+        
         <button type="submit">추가하기</button>
     </form>
     <a href="{% url 'words:word_list' %}">단어 목록으로 돌아가기</a>

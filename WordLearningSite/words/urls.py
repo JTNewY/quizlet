@@ -11,4 +11,6 @@ urlpatterns = [
     path('add/', views.add_word, name='add_word'),  # 단어 추가 페이지
     path('quiz/', views.quiz_view, name='quiz'),  # 퀴즈 페이지
     path('quiz/check/', views.check_quiz, name='check_quiz'),  # 퀴즈 결과 체크
+    path('quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
+    path('quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
 ]
