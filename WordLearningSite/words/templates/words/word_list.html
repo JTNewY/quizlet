@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Word List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .word-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .word-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+            width: 200px; /* 카드 너비 */
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .word-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .word-definition {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        a {
+            display: inline-block;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+
+        a:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 600px) {
+            .word-card {
+                width: 90%; /* 모바일에서는 카드 너비를 90%로 설정 */
+            }
+
+            a {
+                width: 90%; /* 모바일에서는 버튼 너비를 90%로 설정 */
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>Your Word List</h2>
+    <div class="word-container">
+        {% for word in words %}
+            <div class="word-card">
+                <p>
+                    <strong>{{ word.kanji }}</strong> ({{ word.hiragana }}) - {{ word.definition }}
+                </p>
+            </div>
+        {% empty %}
+            <p>No words found. Add some words to your list!</p>
+        {% endfor %}
+    </div>
+    <div class="button-container">
+        <a href="{% url 'words:add_word' %}">단어 추가하기</a>
+        <a href="{% url 'words:quiz' %}">단어 퀴즈</a>
+    </div>
+</body>
+</html>
