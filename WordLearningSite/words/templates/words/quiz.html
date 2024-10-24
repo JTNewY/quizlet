@@ -41,6 +41,10 @@
             text-align: center;
         }
 
+        .small-text {
+            font-size: 0.8em; /* 글씨 크기 작게 설정 */
+        }
+
         label {
             margin-left: 10px;
             font-size: 1.2em;
@@ -53,18 +57,29 @@
         button {
             background-color: #28a745;
             color: white;
-            padding: 12px 15px;
+            padding: 8px 10px; /* 버튼 패딩 작게 설정 */
             border: none;
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
             transition: background-color 0.3s;
-            font-size: 1.2em;
+            font-size: 1em; /* 버튼 글씨 크기 조정 */
         }
 
         button:hover {
             background-color: #218838;
+        }
+
+        .reset-button {
+            padding: 5px 10px; /* 초기화 버튼 패딩 작게 설정 */
+            font-size: 0.9em; /* 글씨 크기 조정 */
+            background-color: #ffc107; /* 초기화 버튼 색상 */
+            margin-top: 5px; /* 위 간격 조정 */
+        }
+
+        .reset-button:hover {
+            background-color: #e0a800; /* 호버 시 색상 변화 */
         }
 
         #result {
@@ -109,26 +124,13 @@
         }
 
         #progress {
-            font-size: 0.9em;
+            font-size: 0.9em; /* 글씨 크기 작게 설정 */
             text-align: center;
             margin: 10px 0;
-        }
-
-        .reset-button {
-            background-color: #ffc107;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-size: 1em;
-            transition: background-color 0.3s;
-            width: 100%;
-        }
-
-        .reset-button:hover {
-            background-color: #e0a800;
+            padding: 10px;
+            background-color: #e7f3fe; /* 배경 색상 */
+            color: #31708f; /* 글자 색상 */
+            border-radius: 5px; /* 둥근 모서리 */
         }
 
         @media (max-width: 600px) {
@@ -141,7 +143,7 @@
             }
 
             button, .reset-button {
-                padding: 15px;
+                padding: 8px; /* 버튼 패딩 조정 */
                 font-size: 1em;
             }
 
@@ -155,7 +157,7 @@
     <h2>퀴즈</h2>
     {% if correct_word %}
         <div id="progress">
-            <p>남은 단어 수: {{ remaining_count }}</p>
+            <p class="small-text">남은 단어 수: {{ remaining_count }}</p> <!-- 남은 단어 수 표시 -->
             <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
         </div>
         <p>다음 한자의 뜻은 무엇인가요?</p>

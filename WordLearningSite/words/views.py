@@ -24,11 +24,9 @@ def add_word(request):
         if form.is_valid():
             word = form.save(commit=False)
             word.user = request.user
-            
             word.word_type = request.POST.get('new_word_type') or request.POST.get('word_type')
             word.save()
             messages.success(request, '단어가 성공적으로 추가되었습니다!')
-
             return redirect('words:word_list')
     else:
         form = WordForm()
@@ -91,8 +89,6 @@ def check_quiz(request):
             })
 
         correct_definition = correct_word.definition
-
-        # 선택한 뜻과 정답 뜻 비교
         is_correct = selected_definition == correct_definition
 
         return JsonResponse({
@@ -160,8 +156,6 @@ def check_quiz2(request):
             })
 
         correct_definition = correct_word.definition
-
-        # 선택한 뜻과 정답 뜻 비교
         is_correct = selected_definition == correct_definition
 
         return JsonResponse({
@@ -172,6 +166,18 @@ def check_quiz2(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
+@login_required
+def word_list(request):
+    words = Word.objects.filter(user=request.user)
+
+    # 랜덤 단어 선택
+    random_word = random.choice(words) if words.exists() else None
+
+    return render(request, 'words/word_list.html', {
+        'words': words,
+        'random_word': random_word,
+    })
+    
 @login_required
 def reset_words_view(request):
     if request.method == 'POST':

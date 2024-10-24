@@ -54,9 +54,16 @@
             color: #666;
         }
 
+        .random-word-container {
+            display: flex;
+            justify-content: center; /* 수평 가운데 정렬 */
+            align-items: center; /* 수직 가운데 정렬 */
+            flex-direction: column; /* 세로 방향으로 정렬 */
+            margin: 20px 0; /* 원하는 경우 여백 추가 */
+        }
+
         .random-word {
             text-align: center;
-            margin: 20px 0;
         }
 
         .button-container {
@@ -93,21 +100,23 @@
 </head>
 <body>
     
-    <div class="random-word">
-        <h3>오늘의 랜덤 단어</h3>
-        {% if random_word %}
-            <div class="word-card">
-                <p class="word">
-                    <strong>{{ random_word.kanji|default_if_none:'' }}</strong><br>
-                    {% if random_word.hiragana %}
-                        <span style="color: #555;">({{ random_word.hiragana }})</span>
-                    {% endif %}
-                </p>
-                <span class="word-definition">{{ random_word.definition }}</span>
-            </div>
-        {% else %}
-            <p>랜덤 단어가 없습니다.</p>
-        {% endif %}
+    <div class="random-word-container">
+        <div class="random-word">
+            <h3>랜덤 단어</h3>
+            {% if random_word %}
+                <div class="word-card">
+                    <p class="word">
+                        <strong>{{ random_word.kanji|default_if_none:'' }}</strong><br>
+                        {% if random_word.hiragana %}
+                            <span style="color: #555;">({{ random_word.hiragana }})</span>
+                        {% endif %}
+                    </p>
+                    <span class="word-definition">{{ random_word.definition }}</span>
+                </div>
+            {% else %}
+                <p>랜덤 단어가 없습니다.</p>
+            {% endif %}
+        </div>
     </div>
     
     <h2>내 단어 목록 (총 {{ words|length }}개)</h2>
