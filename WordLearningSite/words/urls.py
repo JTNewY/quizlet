@@ -13,4 +13,5 @@ urlpatterns = [
     path('quiz/check/', views.check_quiz, name='check_quiz'),  # 퀴즈 결과 체크
     path('quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
     path('quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
+    path('reset/', views.reset_words_view, name='reset_words'),  # 초기화 URL 추가
 ]
