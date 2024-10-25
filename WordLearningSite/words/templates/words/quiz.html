@@ -42,7 +42,7 @@
         }
 
         .small-text {
-            font-size: 0.8em; /* 글씨 크기 작게 설정 */
+            font-size: 0.8em;
         }
 
         label {
@@ -57,14 +57,14 @@
         button {
             background-color: #28a745;
             color: white;
-            padding: 8px 10px; /* 버튼 패딩 작게 설정 */
+            padding: 8px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
             transition: background-color 0.3s;
-            font-size: 1em; /* 버튼 글씨 크기 조정 */
+            font-size: 1em;
         }
 
         button:hover {
@@ -72,14 +72,14 @@
         }
 
         .reset-button {
-            padding: 5px 10px; /* 초기화 버튼 패딩 작게 설정 */
-            font-size: 0.9em; /* 글씨 크기 조정 */
-            background-color: #ffc107; /* 초기화 버튼 색상 */
-            margin-top: 5px; /* 위 간격 조정 */
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background-color: #ffc107;
+            margin-top: 5px;
         }
 
         .reset-button:hover {
-            background-color: #e0a800; /* 호버 시 색상 변화 */
+            background-color: #e0a800;
         }
 
         #result {
@@ -124,13 +124,13 @@
         }
 
         #progress {
-            font-size: 0.9em; /* 글씨 크기 작게 설정 */
+            font-size: 0.9em;
             text-align: center;
             margin: 10px 0;
             padding: 10px;
-            background-color: #e7f3fe; /* 배경 색상 */
-            color: #31708f; /* 글자 색상 */
-            border-radius: 5px; /* 둥근 모서리 */
+            background-color: #e7f3fe;
+            color: #31708f;
+            border-radius: 5px;
         }
 
         @media (max-width: 600px) {
@@ -143,7 +143,7 @@
             }
 
             button, .reset-button {
-                padding: 8px; /* 버튼 패딩 조정 */
+                padding: 8px;
                 font-size: 1em;
             }
 
@@ -155,11 +155,11 @@
 </head>
 <body>
     <h2>퀴즈</h2>
+    <div id="progress">
+        <p class="small-text">남은 단어 수: {{ remaining_count }}</p>
+        <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
+    </div>
     {% if correct_word %}
-        <div id="progress">
-            <p class="small-text">남은 단어 수: {{ remaining_count }}</p> <!-- 남은 단어 수 표시 -->
-            <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
-        </div>
         <p>다음 한자의 뜻은 무엇인가요?</p>
         <p>"{{ correct_word.kanji }}"</p>
         <button id="show-hiragana">히라가나 보기</button>
@@ -181,7 +181,7 @@
         <p>"{{ correct_hiragana }}"</p>
     {% endif %}
 
-    <a href="/words">메뉴로 가기</a>
+    <a href="/words/jp">메뉴로 가기</a>
 
     <div id="result"></div>
 

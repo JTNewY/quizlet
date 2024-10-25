@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from .views import reset_words_view
+
 
 app_name = 'words'
 
@@ -16,7 +18,7 @@ urlpatterns = [
     path('jp_quiz/check/', views.check_quiz, name='check_quiz'),  # 퀴즈 결과 체크
     path('jp_quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
     path('jp_quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
-    path('reset/', views.reset_words_view, name='reset_words'),  # 초기화 URL 추가
+    path('reset_words/', views.reset_words_view, name='reset_words'),
 
     # 영어 관련 URL
     path('en/', views.english_word_list, name='english_word_list'),  # 영어 단어 목록 페이지
