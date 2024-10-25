@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>뜻 퀴즈</title>
+</head>
+<body>
+    <h2>뜻 퀴즈</h2>
+    {% if error_message %}
+        <p>{{ error_message }}</p>
+    {% else %}
+        <form method="post" action="{% url 'words:check_meaning_quiz' %}">
+            {% csrf_token %}
+            <p>아래의 뜻 중 올바른 단어를 선택하세요:</p>
+            {% for word in selected_words %}
+                <input type="radio" id="meaning_{{ word.id }}" name="selected_meaning" value="{{ word.id }}">
+                <label for="meaning_{{ word.id }}">{{ word.word }}</label><br>
+            {% endfor %}
+            <button type="submit">정답 제출</button>
+        </form>
+    {% endif %}
+</body>
+</html>

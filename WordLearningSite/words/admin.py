@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Word, QuizResult
+from .models import Word, QuizResult,EnglishWord
 
 
 class QuestionAdmin(admin.ModelAdmin): # 검색기능 추가
@@ -7,4 +7,5 @@ class QuestionAdmin(admin.ModelAdmin): # 검색기능 추가
 
 
 admin.site.register(Word, QuestionAdmin)
+admin.site.register(EnglishWord)
 admin.site.register(QuizResult)

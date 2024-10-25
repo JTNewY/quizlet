@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>영어 단어 목록</title>
+    <style>
+        /* 기존 스타일을 그대로 사용하거나 필요한 스타일 추가 */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .slider {
+            display: flex;
+            overflow-x: auto;
+            padding: 10px;
+            scroll-snap-type: x mandatory;
+        }
+        .word-card {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            text-align: center;
+            width: 200px;
+            margin-right: 15px;
+            scroll-snap-align: start;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .word-card:hover {
+            transform: scale(1.05);
+        }
+        .word {
+            font-size: 1.5em;
+            color: #007BFF;
+            overflow-wrap: break-word;
+            margin: 5px 0;
+        }
+        .word-definition {
+            font-size: 0.9em;
+            color: #666;
+        }
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        a {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            margin: 5px;
+            font-size: 1.1em;
+        }
+        a:hover {
+            background-color: #218838;
+        }
+        @media (max-width: 600px) {
+            .word-card {
+                width: 90%;
+            }
+            a {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h2>영어 단어 목록 (총 {{ words|length }}개)</h2>
+    <div class="slider">
+        {% for word in words %}
+            <div class="word-card">
+                <p class="word"><strong>{{ word.word }}</strong></p>
+                <span class="word-definition">{{ word.definition }}</span>
+            </div>
+        {% empty %}
+            <p>단어가 없습니다. 단어를 추가해주세요!</p>
+        {% endfor %}
+    </div>
+    <div class="button-container">
+        <a href="{% url 'words:add_english_word' %}">영어 단어 추가하기</a>
+        <a href="{% url 'words:english_quiz' %}">영어 단어 퀴즈</a>
+        <a href="{% url 'words:meaning_quiz' %}">뜻 퀴즈</a>
+    </div>
+</body>
+</html>

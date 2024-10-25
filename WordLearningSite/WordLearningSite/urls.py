@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),  # Django의 기본 로그인/로그아웃 기능 사용
     path('words/', include('words.urls')),  # 앱에서 사용할 URL들 추가
+    # path('englishWords/', include('englishWords.urls')),
 ]

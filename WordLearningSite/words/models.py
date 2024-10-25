@@ -10,7 +10,16 @@ class Word(models.Model):
     def __str__(self):
         return self.kanji if self.kanji else (self.hiragana if self.hiragana else '')
 
+class EnglishWord(models.Model):
+    word = models.CharField(max_length=100)
+    definition = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # 사용자와 연결
+
+    def __str__(self):
+        return self.word
+
 class QuizResult(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    score = models.IntegerField()
-    date_taken = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='word_quiz_results')
+    # 기타 필드 정의
+    
+

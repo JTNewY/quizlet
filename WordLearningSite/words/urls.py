@@ -5,13 +5,24 @@ from django.contrib.auth import views as auth_views
 app_name = 'words'
 
 urlpatterns = [
-    path('', views.word_list, name='word_list'),  # 단어 목록 페이지
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),  # 로그인 페이지
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  # 로그아웃 페이지
-    path('add/', views.add_word, name='add_word'),  # 단어 추가 페이지
-    path('quiz/', views.quiz_view, name='quiz'),  # 퀴즈 페이지
-    path('quiz/check/', views.check_quiz, name='check_quiz'),  # 퀴즈 결과 체크
-    path('quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
-    path('quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
+    # 로그인, 로그아웃 URL
+    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),  
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  
+    
+    # 일본어 관련 URL
+    path('jp/', views.word_list, name='word_list'),  # 단어 목록 페이지
+    path('jp_add/', views.add_word, name='add_word'),  # 단어 추가 페이지
+    path('jp_quiz/', views.quiz_view, name='quiz'),  # 퀴즈 페이지
+    path('jp_quiz/check/', views.check_quiz, name='check_quiz'),  # 퀴즈 결과 체크
+    path('jp_quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
+    path('jp_quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
     path('reset/', views.reset_words_view, name='reset_words'),  # 초기화 URL 추가
+
+    # 영어 관련 URL
+    path('en/', views.english_word_list, name='english_word_list'),  # 영어 단어 목록 페이지
+    path('en_add/', views.add_english_word, name='add_english_word'),  # 영어 단어 추가 페이지
+    path('en_quiz/', views.english_quiz_view, name='english_quiz'),  # 영어 단어 퀴즈 페이지
+    path('en_quiz/check/', views.check_english_quiz, name='check_english_quiz'),  # 영어 단어 퀴즈 결과 체크
+    path('en_meaning-quiz/', views.meaning_quiz_view, name='meaning_quiz'),  # 뜻 퀴즈 페이지
+    path('en_meaning-quiz/check/', views.check_meaning_quiz, name='check_meaning_quiz'),  # 뜻 퀴즈 결과 체크
 ]

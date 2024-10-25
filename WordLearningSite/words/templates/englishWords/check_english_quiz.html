@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈 결과</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+            text-align: center;
+        }
+
+        a {
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>퀴즈 결과</h2>
+    {% if is_correct %}
+        <p class="correct">정답입니다! 올바른 단어는 "<strong>{{ correct_word }}</strong>"입니다.</p>
+        <p>그 뜻은: "<strong>{{ correct_definition }}</strong>"입니다.</p>
+    {% else %}
+        <p class="incorrect">틀렸습니다. 정답은 "<strong>{{ correct_word }}</strong>"입니다.</p>
+        <p>그 뜻은: "<strong>{{ correct_definition }}</strong>"입니다.</p>
+    {% endif %}
+    <a href="{% url 'words:english_quiz' %}">다시 퀴즈 풀기</a>
+</body>
+</html>
