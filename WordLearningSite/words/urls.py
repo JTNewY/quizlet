@@ -25,6 +25,4 @@ urlpatterns = [
     path('en_add/', views.add_english_word, name='add_english_word'),  # 영어 단어 추가 페이지
     path('en_quiz/', views.english_quiz_view, name='english_quiz'),  # 영어 단어 퀴즈 페이지
     path('en_quiz/check/', views.check_english_quiz, name='check_english_quiz'),  # 영어 단어 퀴즈 결과 체크
-    path('en_meaning-quiz/', views.meaning_quiz_view, name='meaning_quiz'),  # 뜻 퀴즈 페이지
-    path('en_meaning-quiz/check/', views.check_meaning_quiz, name='check_meaning_quiz'),  # 뜻 퀴즈 결과 체크
 ]
