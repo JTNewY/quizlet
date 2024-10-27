@@ -3,22 +3,226 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>영어 단어 퀴즈</title>
+    <title>퀴즈</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2em;
+        }
+
+        #quiz-form {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+
+        p {
+            font-size: 1.5em;
+            margin: 10px 0;
+            word-wrap: break-word;
+            text-align: center;
+        }
+
+        .small-text {
+            font-size: 0.8em;
+        }
+
+        label {
+            margin-left: 10px;
+            font-size: 1.2em;
+        }
+
+        input[type="radio"] {
+            margin-right: 10px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 8px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            font-size: 1em;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        .reset-button {
+            padding: 5px 10px;
+            font-size: 0.8em; /* 크기 줄임 */
+            background-color: #ffc107;
+            margin-top: 5px;
+        }
+
+        .reset-button:hover {
+            background-color: #e0a800;
+        }
+
+        #result {
+            margin-top: 20px;
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .correct {
+            color: green;
+        }
+
+        .incorrect {
+            color: red;
+        }
+
+        a {
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+            text-align: center;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        #progress {
+            font-size: 0.9em;
+            text-align: center;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e7f3fe;
+            color: #31708f;
+            border-radius: 5px;
+        }
+
+        @media (max-width: 600px) {
+            h2 {
+                font-size: 1.8em;
+            }
+
+            p {
+                font-size: 1.4em;
+            }
+
+            button, .reset-button {
+                padding: 8px;
+                font-size: 1em;
+            }
+
+            #quiz-form {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
     <h2>영어 단어 퀴즈</h2>
-    {% if error_message %}
-        <p>{{ error_message }}</p>
-    {% else %}
-        <form method="post" action="{% url 'words:check_english_quiz' %}">
+    <div id="progress">
+        <p class="small-text">남은 단어 수: {{ remaining_count }}</p>
+        <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
+    </div>
+    {% if correct_word %}
+        <p>다음 단어의 뜻은 무엇인가요?</p>
+        <p>"{{ correct_word.word }}"</p>
+        <form id="quiz-form" method="post">
             {% csrf_token %}
-            <p>아래의 단어 중 올바른 뜻을 선택하세요:</p>
+            <input type="hidden" name="correct_word" value="{{ correct_word.word }}">
+            <input type="hidden" name="correct_definition" value="{{ correct_word.definition }}">
             {% for word in selected_words %}
-                <input type="radio" id="word_{{ word.id }}" name="selected_word" value="{{ word.id }}">
-                <label for="word_{{ word.id }}">{{ word.definition }}</label><br>
+                <div>
+                    <input type="radio" name="selected_definition" value="{{ word.definition }}" id="{{ word.definition }}">
+                    <label for="{{ word.definition }}">{{ word.definition }}</label>
+                </div>
             {% endfor %}
-            <button type="submit">정답 제출</button>
+            <button type="submit">제출하기</button>
         </form>
+    {% else %}
+        <p>퀴즈를 진행할 단어가 없습니다.</p>
     {% endif %}
+
+    <a href="/words/en">메뉴로 가기</a>
+
+    <div id="result"></div>
+
+    <script>
+        $(document).ready(function() {
+            $('#quiz-form').on('submit', function(event) {
+                event.preventDefault();
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "words:check_english_quiz" %}',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        const resultMessage = response.is_correct ? 
+                            '<p class="correct">정답입니다!</p>' : 
+                            '<p class="incorrect">틀렸습니다.</p>';
+
+                        $('#result').html('<h3>퀴즈 결과</h3>' + 
+                            resultMessage +
+                            '<p>정답: <br>"' + response.correct_definition + '"입니다.</p>' +
+                            '<button id="next-quiz">다음 퀴즈</button>'
+                        );
+
+                        $('#next-quiz').on('click', function() {
+                            window.location.reload(); // 다음 퀴즈를 위해 페이지를 새로고침
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result').html('<h3>오류 발생</h3>' + 
+                            '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>'
+                        );
+                        console.log(xhr.responseText); // 자세한 오류 메시지
+                    }
+                });
+            });
+
+            $('#reset-quiz').on('click', function() {
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "words:reset_words" %}', 
+                    data: {
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(response) {
+                        location.reload();  // 퀴즈 초기화 후 페이지 새로고침
+                    },
+                    error: function(xhr, status, error) {
+                        alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                        console.log(xhr.responseText); // 자세한 오류 메시지
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

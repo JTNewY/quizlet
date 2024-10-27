@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 @login_required
 def reset_japanese_words(request):
     words = list(Word.objects.filter(user=request.user).values('id', 'kanji', 'hiragana', 'definition'))
@@ -26,7 +27,6 @@ def reset_words_view(request):
         try:
             reset_japanese_words(request)  # 일본어 단어 리셋
             reset_english_words(request)    # 영어 단어 리셋
-
             QuizResult.objects.filter(user=request.user).delete()  # 퀴즈 결과 초기화
 
             return JsonResponse({'success': True})
@@ -196,9 +196,15 @@ def check_quiz2(request):
 
 @login_required
 def english_word_list(request):
-    words = EnglishWord.objects.all()  # 모든 영어 단어 가져오기
-    random_word = words.order_by('?').first() if words else None  # 랜덤 단어
-    return render(request, 'englishWords/english_word_list.html', {'words': words, 'random_word': random_word})
+    # 현재 로그인한 사용자와 연결된 영어 단어 가져오기
+    words = EnglishWord.objects.filter(user=request.user)
+    # 단어 목록이 있을 경우 랜덤으로 하나 선택
+    random_word = random.choice(words) if words.exists() else None
+
+    return render(request, 'englishWords/english_word_list.html', {
+        'words': words,
+        'random_word': random_word,
+    })
 
 @login_required
 def add_english_word(request):
@@ -215,131 +221,68 @@ def add_english_word(request):
 
 @login_required
 def english_quiz_view(request):
+    # 세션에서 남은 영어 단어 목록 가져오기
     remaining_words = request.session.get('remaining_english_words', [])
+    
+    # 디버깅: 남은 단어 수 로그
+    logger.debug(f'남은 단어 목록: {remaining_words}')
 
-    if not remaining_words:  # 단어 리스트가 비어있으면 초기화
+    # 남은 단어 목록이 없을 경우 초기화
+    if not remaining_words:
         reset_english_words(request)  # 초기화 함수 호출
-        remaining_words = request.session['remaining_english_words']
+        remaining_words = request.session.get('remaining_english_words', [])
+    
+    # 디버깅: 초기화 후 남은 단어 수 로그
+    logger.debug(f'초기화 후 남은 단어 목록: {remaining_words}')
 
-    total_words = len(remaining_words)  # 총 단어 수
+    total_words = len(remaining_words)  # 총 단어 수 확인
 
+    # 총 단어 수가 3개 미만일 경우 에러 메시지 반환
     if total_words < 3:
         return render(request, 'englishWords/english_quiz.html', {
             'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.'
         })
 
+    # 정답 단어 하나 선택
     correct_word_data = random.choice(remaining_words)
+    
+    # 정답이 아닌 다른 단어들 리스트 생성
     other_words = [word for word in remaining_words if word['id'] != correct_word_data['id']]
 
+    # 선택 가능한 단어가 2개 미만일 경우 에러 메시지 반환
     if len(other_words) < 2:
         return render(request, 'englishWords/english_quiz.html', {
             'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
         })
 
+    # 정답 단어와 랜덤하게 선택한 다른 단어들 포함해서 퀴즈 리스트 구성
     selected_words = [correct_word_data] + random.sample(other_words, 2)
     random.shuffle(selected_words)
 
-    remaining_words.remove(correct_word_data)  # 사용한 단어 제거
-    request.session['remaining_english_words'] = remaining_words  # 업데이트된 단어 리스트 저장
+    # 사용한 단어 제거 후 세션 업데이트
+    remaining_words.remove(correct_word_data)
+    request.session['remaining_english_words'] = remaining_words
 
-    remaining_count = len(remaining_words)  # 남은 단어 수
+    remaining_count = len(remaining_words)  # 남은 단어 수 계산
 
     return render(request, 'englishWords/english_quiz.html', {
         'selected_words': selected_words,
-        'correct_word': correct_word_data,
+        'correct_word': correct_word_data,  # ID와 함께 전달
         'total_words': total_words,
         'remaining_count': remaining_count,
     })
-
 @login_required
 def check_english_quiz(request):
     if request.method == 'POST':
-        selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
-        correct_word_id = request.POST.get('correct_word_id')
+        correct_word = request.POST.get('correct_word')
+        selected_definition = request.POST.get('selected_definition')
+        correct_definition = request.POST.get('correct_definition')
 
-        # 정답 단어를 DB에서 찾기 (ID로 검색)
-        correct_word = EnglishWord.objects.filter(id=correct_word_id).first()
+        # 파라미터가 모두 있는지 확인
+        if not correct_word or not selected_definition or not correct_definition:
+            return JsonResponse({'is_correct': False, 'error': 'Missing parameters.'}, status=400)
 
-        # 정답 단어가 없을 경우, ID만 반환
-        if correct_word is None:
-            return JsonResponse({
-                'is_correct': False,
-                'correct_word_id': correct_word_id,
-                'correct_definition': None,
-            })
-
-        correct_definition = correct_word.definition
+        # 정답 확인 로직
         is_correct = selected_definition == correct_definition
 
-        return JsonResponse({
-            'is_correct': is_correct,
-            'correct_word_id': correct_word_id,
-            'correct_definition': correct_definition,
-        })
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
-
-@login_required
-def meaning_quiz_view(request):
-    remaining_words = request.session.get('remaining_english_words', [])
-
-    if not remaining_words:  # 단어 리스트가 비어있으면 초기화
-        reset_english_words(request)  # 초기화 함수 호출
-        remaining_words = request.session['remaining_english_words']
-
-    total_words = len(remaining_words)  # 총 단어 수
-
-    if total_words < 3:
-        return render(request, 'englishWords/meaning_quiz.html', {
-            'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.'
-        })
-
-    correct_word_data = random.choice(remaining_words)
-    other_words = [word for word in remaining_words if word['id'] != correct_word_data['id']]
-
-    if len(other_words) < 2:
-        return render(request, 'englishWords/meaning_quiz.html', {
-            'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
-        })
-
-    selected_words = [correct_word_data] + random.sample(other_words, 2)
-    random.shuffle(selected_words)
-
-    remaining_words.remove(correct_word_data)  # 사용한 단어 제거
-    request.session['remaining_english_words'] = remaining_words  # 업데이트된 단어 리스트 저장
-
-    remaining_count = len(remaining_words)  # 남은 단어 수
-
-    return render(request, 'englishWords/meaning_quiz.html', {
-        'selected_words': selected_words,
-        'correct_word': correct_word_data,
-        'total_words': total_words,
-        'remaining_count': remaining_count,
-    })
-
-@login_required
-def check_meaning_quiz(request):
-    if request.method == 'POST':
-        selected_word_id = request.POST.get('selected_word_id')  # 선택한 단어 ID
-        correct_word_id = request.POST.get('correct_word_id')
-
-        # 정답 단어를 DB에서 찾기 (ID로 검색)
-        correct_word = EnglishWord.objects.filter(id=correct_word_id).first()
-
-        # 정답 단어가 없을 경우, ID만 반환
-        if correct_word is None:
-            return JsonResponse({
-                'is_correct': False,
-                'correct_word_id': correct_word_id,
-                'correct_definition': None,
-            })
-
-        is_correct = selected_word_id == correct_word_id
-
-        return JsonResponse({
-            'is_correct': is_correct,
-            'correct_word_id': correct_word_id,
-            'correct_definition': correct_word.definition,
-        })
-
-    return JsonResponse({'error': 'Invalid request method.'}, status=400)
+        return JsonResponse({'is_correct': is_correct, 'correct_definition': correct_definition})
