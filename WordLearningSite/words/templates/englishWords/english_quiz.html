@@ -125,6 +125,22 @@
             border-radius: 5px;
         }
 
+        #play-audio {
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            width: 100%;
+        }
+
+        #play-audio:hover {
+            background-color: #0056b3;
+        }
+
         @media (max-width: 600px) {
             h2 {
                 font-size: 1.8em;
@@ -134,7 +150,7 @@
                 font-size: 1.4em;
             }
 
-            button, .reset-button {
+            button, .reset-button, #play-audio {
                 padding: 8px;
                 font-size: 1em;
             }
@@ -166,6 +182,7 @@
             {% endfor %}
             <button type="submit">제출하기</button>
         </form>
+        <button id="play-audio">단어 음성 듣기</button>
     {% else %}
         <p>퀴즈를 진행할 단어가 없습니다.</p>
     {% endif %}
@@ -221,6 +238,12 @@
                         console.log(xhr.responseText); // 자세한 오류 메시지
                     }
                 });
+            });
+
+            $('#play-audio').on('click', function() {
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q={{ correct_word.word }}&tl=en&client=tw-ob`;
+                const audio = new Audio(audioUrl);
+                audio.play();
             });
         });
     </script>

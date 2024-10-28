@@ -7,9 +7,13 @@ from .views import reset_words_view
 app_name = 'words'
 
 urlpatterns = [
+    
+    # 메인페이지
+    path('main/',views.main_page, name='main'),
+    
     # 로그인, 로그아웃 URL
     path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),  
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),  
+    path('logout/', auth_views.LogoutView.as_view(next_page='/words/main/'), name='logout'),
     
     # 일본어 관련 URL
     path('jp/', views.word_list, name='word_list'),  # 단어 목록 페이지
@@ -19,7 +23,7 @@ urlpatterns = [
     path('jp_quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
     path('jp_quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
     path('reset_words/', views.reset_words_view, name='reset_words'),
-
+    
     # 영어 관련 URL
     path('en/', views.english_word_list, name='english_word_list'),  # 영어 단어 목록 페이지
     path('en_add/', views.add_english_word, name='add_english_word'),  # 영어 단어 추가 페이지

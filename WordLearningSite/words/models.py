@@ -22,5 +22,7 @@ class QuizResult(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='word_quiz_results')
     # 기타 필드 정의
 
+class VisitorCount(models.Model):
+    count = models.IntegerField(default=0)
     
 

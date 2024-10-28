@@ -1,4 +1,4 @@
-from .models import Word, EnglishWord, QuizResult
+from .models import Word, EnglishWord, QuizResult, VisitorCount
 from .forms import WordForm, EnglishWordForm
 from django.contrib.auth.decorators import login_required
 import random
@@ -7,27 +7,62 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 import json
 import logging
+from django.utils import timezone
+from datetime import timedelta
 
 logger = logging.getLogger(__name__)
 
 
-@login_required
+def update_visitor_count(request):
+    # 세션이 만료되었는지 확인
+    if 'last_visit' in request.session:
+        last_visit = timezone.datetime.fromisoformat(request.session['last_visit'])  # ISO 포맷으로 변환
+        if timezone.now() - last_visit < timedelta(minutes=30):  # 30분 이내에 방문
+            return  # 카운트 증가 안 함
+    
+    # 새 방문으로 간주
+    visitor, created = VisitorCount.objects.get_or_create(id=1)
+    visitor.count += 1
+    visitor.save()
+    request.session['last_visit'] = timezone.now().isoformat()  # ISO 포맷 문자열로 저장
+
+def main_page(request):
+    update_visitor_count(request)  # request를 전달합니다.
+    
+    # 모든 일본어 단어와 영어 단어의 개수를 가져옴
+    japanese_word_count = Word.objects.count()
+    english_word_count = EnglishWord.objects.count()
+    
+    # 방문자 수 가져오기
+    visitor_count = VisitorCount.objects.get(id=1).count
+
+    # 템플릿에 전달할 컨텍스트 구성
+    context = {
+        'japanese_word_count': japanese_word_count,
+        'english_word_count': english_word_count,
+        'visitor_count': visitor_count,  # 방문자 수
+    }
+    
+    return render(request, 'main/main_page.html', context)
+
 def reset_japanese_words(request):
-    words = list(Word.objects.filter(user=request.user).values('id', 'kanji', 'hiragana', 'definition'))
+    # 모든 단어를 가져옴
+    words = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))
     request.session['remaining_japanese_words'] = words  # 세션에 저장
 
-@login_required
 def reset_english_words(request):
-    words = list(EnglishWord.objects.filter(user=request.user).values('id', 'word', 'definition'))
+    # 모든 단어를 가져옴
+    words = list(EnglishWord.objects.values('id', 'word', 'definition'))
     request.session['remaining_english_words'] = words  # 세션에 저장
 
-@login_required
 def reset_words_view(request):
     if request.method == 'POST':
         try:
             reset_japanese_words(request)  # 일본어 단어 리셋
             reset_english_words(request)    # 영어 단어 리셋
-            QuizResult.objects.filter(user=request.user).delete()  # 퀴즈 결과 초기화
+
+            # 유저가 로그인하지 않았을 때 QuizResult를 삭제할 필요가 없으므로 주석 처리
+            # QuizResult.objects.filter(user=request.user).delete()  # 퀴즈 결과 초기화
 
             return JsonResponse({'success': True})
 
@@ -36,9 +71,8 @@ def reset_words_view(request):
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
-@login_required
 def word_list(request):
-    words = Word.objects.filter(user=request.user)
+    words = Word.objects.all()  # 모든 단어 조회
     random_word = random.choice(words) if words.exists() else None
     return render(request, 'words/word_list.html', {
         'words': words,
@@ -60,7 +94,6 @@ def add_word(request):
         form = WordForm()
     return render(request, 'words/add_word.html', {'form': form})
 
-@login_required
 def quiz_view(request):
     remaining_words = request.session.get('remaining_japanese_words', [])
 
@@ -98,7 +131,6 @@ def quiz_view(request):
         'remaining_count': remaining_count,
     })
 
-@login_required
 def check_quiz(request):
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
@@ -126,7 +158,6 @@ def check_quiz(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
-@login_required
 def quiz2_view(request):
     remaining_words = request.session.get('remaining_japanese_words', [])
 
@@ -164,7 +195,6 @@ def quiz2_view(request):
         'remaining_count': remaining_count,
     })
 
-@login_required
 def check_quiz2(request):
     if request.method == 'POST':
         selected_hiragana = request.POST.get('selected_hiragana')  # 선택한 히라가나
@@ -194,13 +224,9 @@ def check_quiz2(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
-@login_required
 def english_word_list(request):
-    # 현재 로그인한 사용자와 연결된 영어 단어 가져오기
-    words = EnglishWord.objects.filter(user=request.user)
-    # 단어 목록이 있을 경우 랜덤으로 하나 선택
+    words = EnglishWord.objects.all()  # 모든 영어 단어 조회
     random_word = random.choice(words) if words.exists() else None
-
     return render(request, 'englishWords/english_word_list.html', {
         'words': words,
         'random_word': random_word,
@@ -219,7 +245,6 @@ def add_english_word(request):
         form = EnglishWordForm()
     return render(request, 'englishWords/add_english_word.html', {'form': form})
 
-@login_required
 def english_quiz_view(request):
     # 세션에서 남은 영어 단어 목록 가져오기
     remaining_words = request.session.get('remaining_english_words', [])
@@ -271,7 +296,7 @@ def english_quiz_view(request):
         'total_words': total_words,
         'remaining_count': remaining_count,
     })
-@login_required
+
 def check_english_quiz(request):
     if request.method == 'POST':
         correct_word = request.POST.get('correct_word')

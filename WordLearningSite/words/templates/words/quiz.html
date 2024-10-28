@@ -16,14 +16,14 @@
             align-items: center;
             min-height: 100vh;
         }
-
+        
         h2 {
             color: #333;
             margin-bottom: 20px;
             text-align: center;
             font-size: 2em;
         }
-
+        
         #quiz-form {
             background: white;
             border-radius: 10px;
@@ -33,31 +33,31 @@
             max-width: 600px;
             box-sizing: border-box;
         }
-
+        
         p {
             font-size: 1.5em;
             margin: 10px 0;
             word-wrap: break-word;
             text-align: center;
         }
-
+        
         .small-text {
             font-size: 0.8em;
         }
-
+        
         label {
             margin-left: 10px;
             font-size: 1.2em;
         }
-
+        
         input[type="radio"] {
             margin-right: 10px;
         }
-
+        
         button {
             background-color: #28a745;
             color: white;
-            padding: 8px 10px;
+            padding: 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -66,22 +66,22 @@
             transition: background-color 0.3s;
             font-size: 1em;
         }
-
+        
         button:hover {
             background-color: #218838;
         }
-
+        
         .reset-button {
             padding: 5px 10px;
             font-size: 0.9em;
             background-color: #ffc107;
             margin-top: 5px;
         }
-
+        
         .reset-button:hover {
             background-color: #e0a800;
         }
-
+        
         #result {
             margin-top: 20px;
             text-align: center;
@@ -93,15 +93,15 @@
             padding: 15px;
             box-sizing: border-box;
         }
-
+        
         .correct {
             color: green;
         }
-
+        
         .incorrect {
             color: red;
         }
-
+        
         a {
             margin-top: 20px;
             color: #007BFF;
@@ -110,11 +110,11 @@
             transition: color 0.3s;
             text-align: center;
         }
-
+        
         a:hover {
             color: #0056b3;
         }
-
+        
         #hiragana-display {
             margin-top: 20px;
             font-size: 1.2em;
@@ -122,7 +122,7 @@
             display: none;
             text-align: center;
         }
-
+        
         #progress {
             font-size: 0.9em;
             text-align: center;
@@ -132,23 +132,42 @@
             color: #31708f;
             border-radius: 5px;
         }
-
+        
+        #play-audio {
+            margin-top: 10px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        #play-audio:hover {
+            background-color: #0056b3;
+        }
+        
         @media (max-width: 600px) {
             h2 {
                 font-size: 1.8em;
             }
-
+        
             p {
                 font-size: 1.4em;
             }
-
+        
             button, .reset-button {
                 padding: 8px;
                 font-size: 1em;
             }
-
+        
             #quiz-form {
                 padding: 15px;
+            }
+        
+            #play-audio {
+                width: 100%;
             }
         }
     </style>
@@ -164,6 +183,7 @@
         <p>"{{ correct_word.kanji }}"</p>
         <button id="show-hiragana">히라가나 보기</button>
         <div id="hiragana-display">정답 히라가나는 "<span>{{ correct_word.hiragana }}</span>"입니다.</div>
+        <button id="play-audio">음성 듣기</button>
         <form id="quiz-form" method="post">
             {% csrf_token %}
             <input type="hidden" name="correct_hiragana" value="{{ correct_word.hiragana }}">
@@ -222,8 +242,11 @@
                 $('#hiragana-display').toggle();
             });
 
-            $('#next-quiz').on('click', function() {
-                window.location.href = '{% url "words:quiz" %}';
+            $('#play-audio').on('click', function() {
+                const kanji = "{{ correct_word.hiragana }}"; // 현재 단어의 한자
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(kanji)}&tl=ja&client=gtx`;
+                const audio = new Audio(audioUrl);
+                audio.play();
             });
 
             $('#reset-quiz').on('click', function() {

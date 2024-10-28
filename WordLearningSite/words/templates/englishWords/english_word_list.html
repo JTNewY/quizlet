@@ -89,8 +89,13 @@
         {% endfor %}
     </div>
     <div class="button-container">
+
+        {% if user.is_authenticated %}
         <a href="{% url 'words:add_english_word' %}">영어 단어 추가하기</a>
+    {% endif %}
+      
         <a href="{% url 'words:english_quiz' %}">영어 단어 퀴즈</a>
+        <a href="{% url 'words:main' %}">메인페이지</a>
     </div>
 </body>
 </html>
