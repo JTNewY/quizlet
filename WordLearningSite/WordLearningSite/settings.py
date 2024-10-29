@@ -29,7 +29,8 @@ ALLOWED_HOSTS = [
     "127.0.0.1", 
     "cloudtype.app", 
     "www.cloudtype.app", 
-    "0.0.0.0"
+    "0.0.0.0",
+    "port-0-quizlet-m2u67qojefce5ecc.sel4.cloudtype.app",  # 추가된 도메인
 ]
 
 # Application definition
