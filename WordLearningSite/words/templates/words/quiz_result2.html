@@ -1,9 +1,11 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>퀴즈 결과 2</title>
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}" id="dark-mode-stylesheet" disabled>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,5 +44,21 @@
         <p>뜻: "{{ correct_definition }}"</p>
         <a href="{% url 'words:quiz2' %}">다음 퀴즈로 가기</a>
     </div>
+    <script >
+        // 다크 모드 토글
+        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+    
+            // 다크 모드 상태 저장
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                localStorage.removeItem('dark-mode');
+            }
+        });
+    </script>
 </body>
 </html>

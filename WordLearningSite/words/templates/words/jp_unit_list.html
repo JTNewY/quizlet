@@ -1,55 +1,57 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>단원별 단어 목록</title>
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}" id="dark-mode-stylesheet" disabled>
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #eef2f3; /* 배경 색상 */
+            background-color: #eef2f3;
             margin: 0;
             padding: 20px;
         }
-
+    
         h2 {
             text-align: center;
             color: #333;
             margin-bottom: 20px;
         }
-
+    
         .unit-container {
-            text-align: center; /* 단원 버튼을 중앙 정렬 */
-            margin: 20px 0; /* 단원 간격 */
+            text-align: center;
+            margin: 20px 0;
         }
-
+    
         .unit-button {
             display: inline-block;
-            background-color: #007BFF; /* 버튼 색상 */
+            background-color: #007BFF;
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
             margin: 5px;
-            font-size: 1.2em; /* 버튼 텍스트 크기 */
+            font-size: 1.2em;
             cursor: pointer;
             transition: background-color 0.3s;
-            border: none; /* 기본 테두리 제거 */
+            border: none;
         }
-
+    
         .unit-button:hover {
-            background-color: #0056b3; /* 버튼 호버 색상 */
+            background-color: #0056b3;
         }
-
+    
         .slider {
-            display: none; /* 기본적으로 숨김 */
+            display: none; /* 기본 상태에서는 숨김 */
             overflow-x: auto;
             padding: 10px;
             scroll-snap-type: x mandatory;
-            justify-content: center;
+            justify-content: start;
         }
-
+    
         .word-card {
-            background: #ffffff; /* 카드 배경 색상 */
+            background: #ffffff;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             padding: 20px;
@@ -58,53 +60,57 @@
             margin-right: 15px;
             scroll-snap-align: start;
             flex-shrink: 0;
-            transition: transform 0.3s; /* 호버 시 애니메이션 */
+            transition: transform 0.3s;
         }
-
+    
         .word-card:hover {
-            transform: scale(1.05); /* 호버 시 확대 효과 */
+            transform: scale(1.05);
         }
-
+    
         .word {
             font-size: 1.5em;
-            color: #007BFF; /* 단어 색상 */
+            color: #007BFF;
             overflow-wrap: break-word;
-            margin: 5px 0; /* 단어 사이 마진 추가 */
+            margin: 5px 0;
         }
-
+    
         .word-definition {
             font-size: 0.9em;
             color: #666;
         }
-
+    
         .button-container {
             text-align: center;
             margin-top: 20px;
         }
-
+    
         a {
             display: inline-block;
-            background-color: #28a745; /* 버튼 색상 */
+            background-color: #28a745;
             color: white;
             padding: 10px 15px;
             border-radius: 5px;
             text-decoration: none;
             transition: background-color 0.3s;
             margin: 5px;
-            font-size: 1.1em; /* 버튼 텍스트 크기 */
+            font-size: 1.1em;
         }
-
+    
         a:hover {
-            background-color: #218838; /* 버튼 호버 색상 */
+            background-color: #218838;
         }
-
+    
         @media (max-width: 600px) {
             .word-card {
-                width: 90%;
+                width: 80%; /* 모바일에서 카드 너비 조정 */
             }
-
+    
             a {
-                width: 90%;
+                width: 90%; /* 버튼 너비 조정 */
+            }
+    
+            .unit-button {
+                width: 90%; /* 단원 버튼 너비 조정 */
             }
         }
     </style>
@@ -112,26 +118,31 @@
         function toggleUnit(unitId) {
             const sliders = document.querySelectorAll('.slider');
             sliders.forEach(slider => {
-                slider.style.display = 'none'; // 모든 슬라이더 숨김
+                slider.style.display = 'none';
             });
             const selectedSlider = document.getElementById(unitId);
-            selectedSlider.style.display = (selectedSlider.style.display === 'flex') ? 'none' : 'flex'; // 선택한 슬라이더 토글
+            selectedSlider.style.display = (selectedSlider.style.display === 'flex') ? 'none' : 'flex';
         }
 
         // 문서 로드 시 첫 번째 단원 슬라이더 표시
         document.addEventListener('DOMContentLoaded', function() {
             const firstSlider = document.querySelector('.slider');
             if (firstSlider) {
-                firstSlider.style.display = 'flex'; // 첫 번째 단원 슬라이더 보이기
+                firstSlider.style.display = 'flex';
             }
         });
+
+        function startQuiz() {
+            // 전체 단어 퀴즈 페이지로 이동
+            window.location.href = '/words/jp_quiz/?unit=전체';
+        }
     </script>
 </head>
 <body>
 
     <h2>단원별 단어 목록</h2>
 
-    {% load custom_filters %}  <!-- 필터 로드 -->
+    {% load custom_filters %}
 
     {% for unit in units %}
         <div class="unit-container">
@@ -161,8 +172,6 @@
             <a href="{% url 'words:add_word' %}">단어 추가하기</a>
         {% endif %}
         <a href="{% url 'words:word_list' %}">단어 목록으로 돌아가기</a>
-        <a href="{% url 'words:quiz' %}">한자 퀴즈</a>
-        <a href="{% url 'words:quiz2' %}">단어 퀴즈</a>
         <a href="{% url 'words:main' %}">메인페이지</a>
     </div>
 </body>

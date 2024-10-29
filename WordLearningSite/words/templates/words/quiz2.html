@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -5,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>퀴즈 2</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/dark.css' %}" id="dark-mode-stylesheet" disabled>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -205,6 +207,16 @@
                 }
             });
         });
+     
+    
+        if (localStorage.getItem('dark-mode') === 'enabled') {
+            document.body.classList.add('dark-mode');
+            const icon = document.getElementById('toggle-dark-mode').querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+        }
+    
     </script>
+ 
 </body>
 </html>

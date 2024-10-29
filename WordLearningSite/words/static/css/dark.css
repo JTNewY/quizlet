@@ -1,0 +1,24 @@
+/* 다크 모드 스타일 */
+body {
+    background-color: #333; /* 배경 색상 */
+    color: #f2f2f2; /* 기본 텍스트 색상 */
+}
+
+.word-card {
+    background: #444; /* 카드 배경 색상 */
+    color: #f2f2f2; /* 카드 텍스트 색상 */
+}
+
+.word-definition {
+    color: #ccc; /* 정의 색상 */
+}
+
+a {
+    color: #66c; /* 링크 색상 */
+}
+
+a:hover {
+    color: #88e; /* 링크 호버 색상 */
+}
+
+/* 필요에 따라 추가 스타일을 정의할 수 있습니다. */

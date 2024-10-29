@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -103,5 +104,21 @@
         <button type="submit">추가하기</button>
     </form>
     <a href="{% url 'words:word_list' %}">단어 목록으로 돌아가기</a>
+    <script >
+        // 다크 모드 토글
+        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
+            document.body.classList.toggle('dark-mode');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-moon');
+            icon.classList.toggle('fa-sun');
+    
+            // 다크 모드 상태 저장
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('dark-mode', 'enabled');
+            } else {
+                localStorage.removeItem('dark-mode');
+            }
+        });
+    </script>
 </body>
 </html>

@@ -23,6 +23,7 @@ urlpatterns = [
     path('jp_quiz2/', views.quiz2_view, name='quiz2'),  # 퀴즈 2 페이지
     path('jp_quiz2/check/', views.check_quiz2, name='check_quiz2'),  # 퀴즈 2 결과 체크
     path('reset_words/', views.reset_words_view, name='reset_words'),
+    path('select_unit/', views.select_unit, name='select_unit'),
     
     
     # 영어 관련 URL
