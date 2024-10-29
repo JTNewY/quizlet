@@ -41,9 +41,8 @@ INSTALLED_APPS = [
 ]
 
 STATICFILES_DIRS = [
-    BASE_DIR / "words" / "static",
+    BASE_DIR / "static",
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
