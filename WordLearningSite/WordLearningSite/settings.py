@@ -78,8 +78,19 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'svc': {
+        'ENGINE': 'django.db.backends.mysql',  # MariaDB는 MySQL 드라이버를 사용합니다
+        'NAME': 'mariadb',                     # 데이터베이스 이름
+        'USER': 'root',                        # 일반적으로 root 사용자 사용
+        'PASSWORD': '4087',                    # 제공된 root 비밀번호
+        'HOST': 'svc.sel4.cloudtype.app',      # MariaDB 호스트
+        'PORT': '32243',                       # 지정된 포트
     }
 }
+
+
+CSRF_TRUSTED_ORIGINS = ['https://*.cloudtype.app'],
 
 LOGIN_REDIRECT_URL = '/words/main/'
 LOGOUT_REDIRECT_URL = '/words/main/'
@@ -128,4 +139,4 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-ALLOWED_HOSTS = ['121.172.80.1', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".cloudtype.app", "0.0.0.0"]
