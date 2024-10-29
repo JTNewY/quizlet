@@ -124,8 +124,4 @@ USE_TZ = True
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# CSRF trusted origins
-CSRF_TRUSTED_ORIGINS = [
-    "https://cloudtype.app",
-    "https://www.cloudtype.app",
-]
+
