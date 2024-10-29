@@ -15,7 +15,6 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -25,11 +24,15 @@ SECRET_KEY = 'django-insecure-73zz(h=^4bg$71t@1ikrnfkmyd_y299z=$ejg-(=6ip(2znmei
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
-
+ALLOWED_HOSTS = [
+    "localhost", 
+    "127.0.0.1", 
+    "cloudtype.app", 
+    "www.cloudtype.app", 
+    "0.0.0.0"
+]
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,9 +43,12 @@ INSTALLED_APPS = [
     'words',
 ]
 
-
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [
+    BASE_DIR / "static",  # 프로젝트의 static 디렉토리
+    BASE_DIR / "words" / "static",  # words 앱의 static 디렉토리
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -74,34 +80,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'WordLearningSite.wsgi.application'
 
-
 # Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     },
     'svc': {
-        'ENGINE': 'django.db.backends.mysql',  # MariaDB는 MySQL 드라이버를 사용합니다
-        'NAME': 'mariadb',                     # 데이터베이스 이름
-        'USER': 'root',                        # 일반적으로 root 사용자 사용
-        'PASSWORD': '4087',                    # 제공된 root 비밀번호
-        'HOST': 'svc.sel4.cloudtype.app',      # MariaDB 호스트
-        'PORT': '32243',                       # 지정된 포트
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'mariadb',
+        'USER': 'root',
+        'PASSWORD': '4087',
+        'HOST': 'svc.sel4.cloudtype.app',
+        'PORT': '32243',
     }
 }
-
-
 
 LOGIN_REDIRECT_URL = '/words/main/'
 LOGOUT_REDIRECT_URL = '/words/main/'
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -117,38 +115,17 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = 'ko-kr'
-
 TIME_ZONE = 'Asia/Seoul'
-
 USE_I18N = True
-
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
-
-
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     "https://cloudtype.app",
-    "https://www.cloudtype.app",  # www가 붙은 도메인도 추가
-]
-
-ALLOWED_HOSTS = [
-    "localhost", 
-    "127.0.0.1", 
-    "cloudtype.app", 
-    "www.cloudtype.app", 
-    "0.0.0.0"
+    "https://www.cloudtype.app",
 ]
