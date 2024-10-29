@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>퀴즈 선택</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        select, button {
+            padding: 10px;
+            font-size: 1em;
+            margin: 10px 0;
+        }
+
+        a {
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h2>퀴즈 선택</h2>
+    <form method="get" action="{% url 'words:quiz_view' %}">
+        <label for="unit-select">단원 선택:</label>
+        <select name="unit" id="unit-select">
+            <option value="all">전체 선택</option>
+            {% for unit in units %}
+                <option value="{{ unit }}">{{ unit }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit">퀴즈 시작</button>
+    </form>
+    <a href="{% url 'words:main' %}">메인페이지로 돌아가기</a>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Word List</title>
+    <title>단원별 단어 목록</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -16,6 +16,10 @@
             text-align: center;
             color: #333;
             margin-bottom: 20px;
+        }
+
+        .unit-container {
+            margin: 20px 0; /* 단원 간격 */
         }
 
         .slider {
@@ -54,18 +58,6 @@
             color: #666;
         }
 
-        .random-word-container {
-            display: flex;
-            justify-content: center; /* 수평 가운데 정렬 */
-            align-items: center; /* 수직 가운데 정렬 */
-            flex-direction: column; /* 세로 방향으로 정렬 */
-            margin: 20px 0; /* 원하는 경우 여백 추가 */
-        }
-
-        .random-word {
-            text-align: center;
-        }
-
         .button-container {
             text-align: center;
             margin-top: 20px;
@@ -92,10 +84,6 @@
                 width: 90%;
             }
 
-            .random-word-container {
-                width: 90%; /* 모바일에서 카드 너비 조정 */
-            }
-
             a {
                 width: 90%;
             }
@@ -103,50 +91,24 @@
     </style>
 </head>
 <body>
-    
-    <div class="random-word-container">
-        <div class="random-word">
-            <h3>랜덤 단어</h3>
-            {% if random_word %}
-                <div class="word-card">
-                    <p class="word">
-                        <strong>{{ random_word.kanji|default_if_none:'' }}</strong><br>
-                        {% if random_word.hiragana %}
-                            <span style="color: #555;">({{ random_word.hiragana }})</span>
-                        {% endif %}
-                    </p>
-                    <span class="word-definition">{{ random_word.definition }}</span>
-                </div>
-            {% else %}
-                <p>랜덤 단어가 없습니다.</p>
-            {% endif %}
-        </div>
-    </div>
-    
-    <h2>내 단어 목록 (총 {{ words|length }}개)</h2>
-    <div class="slider">
-        {% for word in words %}
-            <div class="word-card">
-                <p class="word">
-                    <strong>{{ word.kanji|default_if_none:'' }}</strong><br>
-                    {% if word.hiragana %}
-                        <span style="color: #555;">({{ word.hiragana }})</span>
-                    {% endif %}
-                </p>
-                <span class="word-definition">{{ word.definition }}</span>
-            </div>
-        {% empty %}
-            <p>단어가 없습니다. 단어를 추가해주세요!</p>
-        {% endfor %}
-    </div>
 
+    <h2>단원별 단어 목록</h2>
+
+    <h2>영어 단원 목록</h2>
+    
+    {% for unit, words in words_by_unit.items %}
+        <div class="unit-container">
+            <div class="unit-title">{{ unit|default:"기본 단원" }}</div>
+            <div class="button-container">
+                <a href="{% url 'words:en_unit_detail' unit %}">이 단원 보기</a>
+            </div>
+        </div>
+    {% empty %}
+        <p>등록된 단원이 없습니다.</p>
+    {% endfor %}
+    
     <div class="button-container">
-        {% if user.is_authenticated %}
-        <a href="{% url 'words:add_word' %}">단어 추가하기</a>
-         {% endif %}
-        <a href="{% url 'words:jp_unit_list' %}"> 단원 보기</a>
-        <a href="{% url 'words:quiz' %}">한자 퀴즈</a>
-        <a href="{% url 'words:quiz2' %}">단어 퀴즈</a>
+        <a href="{% url 'words:add_english_word' %}">단어 추가하기</a>
         <a href="{% url 'words:main' %}">메인페이지</a>
     </div>
 </body>

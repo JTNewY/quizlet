@@ -13,6 +13,37 @@ from datetime import timedelta
 logger = logging.getLogger(__name__)
 
 
+def unit_quiz_view(request):
+    if request.method == 'POST':
+        unit = request.POST.get('unit')
+        if unit:
+            words = Word.objects.filter(unit=unit)  # 선택된 단원의 단어 가져오기
+            request.session['remaining_japanese_words'] = list(words.values('id', 'kanji', 'hiragana', 'definition'))
+            return redirect('words:quiz')  # 퀴즈 페이지로 리다이렉트
+    return redirect('words:jp_unit_list')  # 단원이 없으면 단원 목록으로 리다이렉트
+
+# 일본어 단원 목록
+def jp_unit_list(request):
+    units = Word.objects.values('unit').distinct()  # 일본어 단원 목록 가져오기
+    words_by_unit = {unit['unit']: Word.objects.filter(unit=unit['unit']) for unit in units}  # 단원별 단어 목록
+    return render(request, 'words/jp_unit_list.html', {'units': units, 'words_by_unit': words_by_unit})
+
+# 일본어 단원 상세 페이지
+def jp_unit_detail(request, unit):
+    words = Word.objects.filter(unit=unit)  # 해당 일본어 단원에 있는 단어들
+    return render(request, 'words/jp_unit_detail.html', {'unit': unit, 'words': words})
+
+# 영어 단원 목록
+def en_unit_list(request):
+    units = EnglishWord.objects.values('unit').distinct()  # 영어 단원 목록 가져오기
+    words_by_unit = {unit['unit']: EnglishWord.objects.filter(unit=unit['unit']) for unit in units}  # 단원별 단어 목록
+    return render(request, 'words/en_unit_list.html', {'words_by_unit': words_by_unit})
+
+# 영어 단원 상세 페이지
+def en_unit_detail(request, unit):
+    words = EnglishWord.objects.filter(unit=unit)  # 해당 영어 단원에 있는 단어들
+    return render(request, 'words/en_unit_detail.html', {'unit': unit, 'words': words})
+
 def update_visitor_count(request):
     # 세션이 만료되었는지 확인
     if 'last_visit' in request.session:
@@ -95,6 +126,7 @@ def add_word(request):
     return render(request, 'words/add_word.html', {'form': form})
 
 def quiz_view(request):
+    
     remaining_words = request.session.get('remaining_japanese_words', [])
 
     if not remaining_words:  # 단어 리스트가 비어있으면 초기화
@@ -132,6 +164,7 @@ def quiz_view(request):
     })
 
 def check_quiz(request):
+    
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
         correct_hiragana = request.POST.get('correct_hiragana')

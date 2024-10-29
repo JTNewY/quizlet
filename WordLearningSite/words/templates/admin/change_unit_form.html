@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<h1>{% blocktrans %}단원 변경{% endblocktrans %}</h1>
+
+<form method="post">{% csrf_token %}
+    <label for="existing_unit">{% trans "기존 단원 선택" %}</label>
+    <select name="existing_unit" id="existing_unit">
+        <option value="" disabled selected>{% trans "단원 선택" %}</option>
+        {% for unit in form.fields.existing_unit.choices %}
+            <option value="{{ unit.0 }}">{{ unit.1 }}</option>
+        {% endfor %}
+    </select>
+    <br><br>
+
+    <label for="new_unit">{% trans "새 단원 추가" %}</label>
+    <input type="text" name="new_unit" id="new_unit" maxlength="100" placeholder="{% trans '새 단원 이름 입력' %}" />
+    <br><br>
+
+    <button type="submit" name="apply">{% trans "적용" %}</button>
+    <a href="{% url 'admin:words_word_changelist' %}">{% trans "취소" %}</a>
+</form>
+{% endblock %}
