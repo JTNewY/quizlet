@@ -89,8 +89,12 @@ DATABASES = {
     }
 }
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://cloudtype.app",
+    "https://*.cloudtype.app",
 
-CSRF_TRUSTED_ORIGINS = ['https://*.cloudtype.app'],
+]
+
 
 LOGIN_REDIRECT_URL = '/words/main/'
 LOGOUT_REDIRECT_URL = '/words/main/'
