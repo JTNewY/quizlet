@@ -125,3 +125,7 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://cloudtype.app",
+    "https://www.cloudtype.app",  # www가 붙은 도메인 추가
+]
