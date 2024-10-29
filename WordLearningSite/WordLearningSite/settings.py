@@ -143,7 +143,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".cloudtype.app", "0.0.0.0"]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://cloudtype.app",
-    "https://www.cloudtype.app",  # www가 붙은 도메인 추가
-]
+CSRF_TRUSTED_ORIGINS = ['https://*.cloudtype.app']
