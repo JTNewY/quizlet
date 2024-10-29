@@ -144,18 +144,25 @@ def word_list(request):
 
 @login_required
 def add_word(request):
+    # 기존 단원 목록 가져오기 (중복 제거)
+    existing_units = Word.objects.values_list('unit', flat=True).distinct()  # 데이터베이스에서 단원 가져오기
     if request.method == 'POST':
         form = WordForm(request.POST)
         if form.is_valid():
             word = form.save(commit=False)
             word.user = request.user
-            word.word_type = request.POST.get('new_word_type') or request.POST.get('word_type')
+            
+            # 기존 단원 선택 또는 새 단원 추가 처리
+            selected_unit = request.POST.get('unit') or request.POST.get('custom_unit', '기타')
+            word.unit = selected_unit if selected_unit else '기타'  # 기본값 설정
+            
             word.save()
             messages.success(request, '단어가 성공적으로 추가되었습니다!')
             return redirect('words:word_list')
     else:
         form = WordForm()
-    return render(request, 'words/add_word.html', {'form': form})
+    
+    return render(request, 'words/add_word.html', {'form': form, 'units': existing_units})
 def quiz_view(request):
     unit = request.GET.get('unit', '전체')  # 선택된 단원 가져오기
 

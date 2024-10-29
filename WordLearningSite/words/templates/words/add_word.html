@@ -31,7 +31,7 @@
             box-sizing: border-box; /* 박스 크기 설정 */
         }
 
-        input[type="text"], input[type="number"], textarea {
+        input[type="text"], textarea {
             width: 100%; /* 전체 폭 사용 */
             padding: 10px; /* 내부 여백 */
             margin: 10px 0; /* 위아래 간격 */
@@ -42,7 +42,7 @@
             transition: border-color 0.3s; /* 테두리 색상 전환 효과 */
         }
 
-        input[type="text"]:focus, input[type="number"]:focus, textarea:focus {
+        input[type="text"]:focus, textarea:focus {
             border-color: #007BFF; /* 포커스 시 테두리 색상 변화 */
             outline: none; /* 기본 아웃라인 제거 */
         }
@@ -79,7 +79,7 @@
             h2 {
                 font-size: 1.5em; /* 작은 화면에서 제목 크기 조정 */
             }
-            input[type="text"], input[type="number"], textarea {
+            input[type="text"], textarea {
                 font-size: 14px; /* 입력 필드 글자 크기 조정 */
             }
             button {
@@ -101,24 +101,22 @@
         <label for="definition">뜻:</label>
         <textarea id="definition" name="definition" required placeholder="뜻을 입력하세요"></textarea>
         
+        <label for="unit-select">단원 선택:</label>
+        <select id="unit-select" name="unit" >
+            <option value="">단원을 선택하세요</option>
+            {% for unit in units %}
+                <option value="{{ unit }}">{{ unit }}</option>
+            {% endfor %}
+        </select>
+
+        <label for="unit-input">직접 입력:</label>
+        <input type="text" id="unit-input" name="custom_unit" placeholder="직접 단원을 입력하세요">
+
         <button type="submit">추가하기</button>
     </form>
     <a href="{% url 'words:word_list' %}">단어 목록으로 돌아가기</a>
-    <script >
+    <script>
         // 다크 모드 토글
-        document.getElementById('toggle-dark-mode').addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
-            const icon = this.querySelector('i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
-    
-            // 다크 모드 상태 저장
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('dark-mode', 'enabled');
-            } else {
-                localStorage.removeItem('dark-mode');
-            }
-        });
     </script>
 </body>
 </html>
