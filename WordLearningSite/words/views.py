@@ -163,17 +163,23 @@ def add_word(request):
         form = WordForm()
     
     return render(request, 'words/add_word.html', {'form': form, 'units': existing_units})
+
 def quiz_view(request):
     unit = request.GET.get('unit', '전체')  # 선택된 단원 가져오기
 
-    if unit == '전체':
-        remaining_words = list(Word.objects.all())  # 전체 단어 가져오기
-    else:
-        remaining_words = list(Word.objects.filter(unit=unit))  # 선택된 단원 단어 가져오기
+    # 세션에서 남은 단어 가져오기
+    if 'remaining_japanese_words' not in request.session:
+        if unit == '전체':
+            request.session['remaining_japanese_words'] = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))
+        else:
+            request.session['remaining_japanese_words'] = list(Word.objects.filter(unit=unit).values('id', 'kanji', 'hiragana', 'definition'))
 
-    if not remaining_words:  # 단어 리스트가 비어있으면 초기화
+    remaining_words = request.session['remaining_japanese_words']
+
+    # 남은 단어가 없으면 초기화
+    if not remaining_words:  
         reset_japanese_words(request)  # 초기화 함수 호출
-        remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
+        remaining_words = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))  # 다시 가져오기
 
     total_words = len(remaining_words)  # 총 단어 수
 
@@ -183,8 +189,11 @@ def quiz_view(request):
         })
 
     correct_word_data = random.choice(remaining_words)
-    other_words = [word for word in remaining_words if word.id != correct_word_data.id]
+    remaining_words.remove(correct_word_data)  # 사용한 단어 제거
 
+    # 퀴즈를 위해 남은 단어에서 2개 선택
+    other_words = [word for word in remaining_words if word['id'] != correct_word_data['id']]
+    
     if len(other_words) < 2:
         return render(request, 'words/quiz.html', {
             'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
@@ -193,27 +202,27 @@ def quiz_view(request):
     selected_words = [correct_word_data] + random.sample(other_words, 2)
     random.shuffle(selected_words)
 
-    remaining_words.remove(correct_word_data)  # 사용한 단어 제거
-    request.session['remaining_japanese_words'] = [serialize_word(word) for word in remaining_words]  # 직렬화하여 저장
+    # 세션에 업데이트된 남은 단어 저장
+    request.session['remaining_japanese_words'] = [serialize_word(word) for word in remaining_words]
 
     remaining_count = len(remaining_words)  # 남은 단어 수
 
     # 카운트 초기화 및 설정
     if 'current_count' not in request.session:
-        request.session['current_count'] = 0  # 카운트 초기화는 여기서만
+        request.session['current_count'] = 0
 
-    current_count = request.session['current_count']  # 현재 카운트 가져오기
-    remaining_count = total_words - current_count  # 남은 단어 수 계산
+    current_count = request.session['current_count']
+    remaining_count = total_words - current_count
 
     return render(request, 'words/quiz.html', {
         'selected_words': [serialize_word(word) for word in selected_words],  # 직렬화하여 전달
         'correct_word': serialize_word(correct_word_data),  # 직렬화하여 전달
         'total_words': total_words,
-        'remaining_count': remaining_count,  # 수정된 남은 단어 수
-        'current_count': current_count,  # 현재 카운트 전달
-        'selected_unit': unit  # 여기 추가
+        'remaining_count': remaining_count,
+        'current_count': current_count,
+        'selected_unit': unit
     })
-    
+
 def check_quiz(request):
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
