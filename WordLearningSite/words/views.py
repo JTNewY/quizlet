@@ -212,17 +212,23 @@ def add_word(request):
         form = WordForm()
     
     return render(request, 'words/add_word.html', {'form': form, 'units': existing_units})
+
 def quiz_view(request):
     unit = request.GET.get('unit', '전체')  # 선택된 단원 가져오기
 
     if unit == '전체':
-        remaining_words = list(Word.objects.all())  # 전체 단어 가져오기
+        # 전체 단어 가져오기
+        remaining_words = list(Word.objects.all())
+        total_words = len(remaining_words)  # 전체 단어 수 설정
     else:
-        remaining_words = list(Word.objects.filter(unit=unit))  # 선택된 단원 단어 가져오기
+        # 선택된 단원 단어 가져오기
+        remaining_words = list(Word.objects.filter(unit=unit))
+        total_words = len(Word.objects.filter(unit=unit))  # 해당 단원의 전체 단어 수 설정
 
     if not remaining_words:  # 단어 리스트가 비어있으면 초기화
         reset_japanese_words(request)  # 초기화 함수 호출
         remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
+        total_words = len(remaining_words)  # 초기화 후 전체 단어 수 재설정
 
     # 세션에서 이미 사용한 단어 가져오기
     used_words = request.session.get('used_words', [])
@@ -230,17 +236,16 @@ def quiz_view(request):
     # 남은 단어에서 사용된 단어를 제외
     remaining_words = [word for word in remaining_words if word.id not in used_words]
 
-    total_words = len(remaining_words)  # 총 단어 수
-
-    if total_words < 3:
+    if len(remaining_words) < 3:  # 남은 단어가 3개 미만일 경우
         return render(request, 'words/quiz.html', {
             'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.'
         })
 
+    # 정답 단어 선택
     correct_word_data = random.choice(remaining_words)
     other_words = [word for word in remaining_words if word.id != correct_word_data.id]
 
-    if len(other_words) < 2:
+    if len(other_words) < 2:  # 정답 외에 2개의 다른 단어가 필요
         return render(request, 'words/quiz.html', {
             'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
         })
@@ -255,23 +260,24 @@ def quiz_view(request):
     remaining_words.remove(correct_word_data)  # 사용한 단어 제거
     request.session['remaining_japanese_words'] = [serialize_word(word) for word in remaining_words]  # 직렬화하여 저장
 
-    remaining_count = len(remaining_words)  # 남은 단어 수
-
     # 카운트 초기화 및 설정
     if 'current_count' not in request.session:
         request.session['current_count'] = 0  # 카운트 초기화는 여기서만
 
     current_count = request.session['current_count']  # 현재 카운트 가져오기
-    remaining_count = total_words - current_count  # 남은 단어 수 계산
+
+    # 남은 단어 수는 세션에서 가져온 남은 단어를 기준으로 설정
+    remaining_count = total_words - current_count
 
     return render(request, 'words/quiz.html', {
         'selected_words': [serialize_word(word) for word in selected_words],  # 직렬화하여 전달
         'correct_word': serialize_word(correct_word_data),  # 직렬화하여 전달
-        'total_words': total_words,
+        'total_words': total_words,  # 전체 단어 수
         'remaining_count': remaining_count,  # 수정된 남은 단어 수
         'current_count': current_count,  # 현재 카운트 전달
-        'selected_unit': unit  # 여기 추가
+        'selected_unit': unit  # 선택된 단원 전달
     })
+
 def check_quiz(request):
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
@@ -291,18 +297,32 @@ def check_quiz(request):
         correct_definition = correct_word.definition
         is_correct = selected_definition == correct_definition
 
-        # 퀴즈를 진행할 때마다 카운트 증가
-        current_count = request.session.get('current_count', 0)
-        request.session['current_count'] = current_count + 1  # 카운트 저장
+        # 남은 단어 수는 세션에서 가져온 남은 단어를 기준으로 설정
+        remaining_count = len(request.session.get('remaining_japanese_words', []))
+
+        # 남은 단어 수가 0일 경우 초기화 요청 메시지 반환
+        if remaining_count == 0:
+            return JsonResponse({
+                'is_correct': is_correct,
+                'correct_hiragana': correct_hiragana,
+                'correct_definition': correct_definition,
+                'remaining_count': remaining_count,
+                'reset_quiz': True  # 초기화 요청 플래그 추가
+            })
+
+        # 현재 카운트를 가져와서 업데이트
+        current_count = request.session['current_count']
+        request.session['current_count'] = current_count + 1  # 카운트 증가
 
         return JsonResponse({
             'is_correct': is_correct,
             'correct_hiragana': correct_hiragana,
             'correct_definition': correct_definition,
-            'current_count': request.session['current_count'],  # 현재 카운트 반환
+            'remaining_count': remaining_count  # 남은 단어 수 반환
         })
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
+
 
 def quiz2_view(request):
     # 선택된 단원 가져오기 (기본값은 '전체')
