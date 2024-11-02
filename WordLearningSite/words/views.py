@@ -231,6 +231,10 @@ def quiz_view(request):
         reset_japanese_words(request)  # 초기화 함수 호출
         remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
         total_words = len(remaining_words)  # 초기화 후 전체 단어 수 재설정
+        # 초기화 메시지를 사용자에게 보여주기 위해 처리
+        reset_message = '초기화 처리되었습니다.'  # 초기화 메시지 설정
+    else:
+        reset_message = None  # 초기화가 필요하지 않을 경우 메시지 없음
 
     # 세션에서 이미 사용한 단어 가져오기
     used_words = request.session.get('used_words', [])
@@ -277,9 +281,9 @@ def quiz_view(request):
         'total_words': total_words,  # 전체 단어 수
         'remaining_count': remaining_count,  # 수정된 남은 단어 수
         'current_count': current_count,  # 현재 카운트 전달
-        'selected_unit': unit  # 선택된 단원 전달
+        'selected_unit': unit,  # 선택된 단원 전달
+        'reset_message': reset_message  # 초기화 메시지 전달
     })
-
 def check_quiz(request):
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
