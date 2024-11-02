@@ -119,17 +119,15 @@ def reset_english_words(request):
     request.session['remaining_english_words'] = words  # 세션에 저장
 
 def reset_words_view(request):
-    if request.method == 'POST':
+    if request.method == 'POST' or request.method == 'GET':
         try:
-            # 단어 목록을 강제로 초기화
+            logger.info("reset_words_view 호출됨")  # 초기화 로그
             reset_japanese_words(request)
             reset_english_words(request)
-
-            # 세션에서 현재 카운트 초기화
-            request.session['current_count'] = 0  # 카운트 초기화
-
+            
+            request.session['current_count'] = 0  # current_count 초기화
+            
             return JsonResponse({'success': True})
-
         except Exception as e:
             logger.error(f"Exception in reset_words_view: {e}")
             return JsonResponse({'error': str(e)}, status=500)

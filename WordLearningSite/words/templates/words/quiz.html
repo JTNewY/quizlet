@@ -217,7 +217,7 @@
     </style>
 </head>
 <body>
-    <a href="{% url 'words:select_unit' %}" class="unit-select" onclick="resetQuiz()">단원 선택하기</a>
+    <a href="{% url 'words:select_unit' %}" class="unit-select">단원 선택하기</a>
     <p>선택된 단원: <strong>{{ selected_unit }}</strong></p>
 
     <h2>퀴즈</h2>
@@ -307,20 +307,7 @@
             });
 
             $('#reset-quiz').on('click', function() {
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "words:reset_words" %}',
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    success: function(response) {
-                        location.reload();  
-                    },
-                    error: function(xhr, status, error) {
-                        alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
-                        console.log(error);
-                    }
-                });
+                resetQuiz();
             });
         });
 
@@ -334,10 +321,19 @@
             })
             .then(response => {
                 if (response.ok) {
-                    console.log("퀴즈가 초기화되었습니다.");
+                    // Reset UI elements without reloading the page
+                    $('#current-count').text(0); // Reset current count to 0
+                    $('#remaining-count').text({{ total_words }}); // Reset remaining count to total words
+                    $('#result').empty(); // Clear the result section
+                    alert('퀴즈가 초기화되었습니다.'); // Inform user
                 } else {
                     console.error("초기화 중 오류 발생");
+                    alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
                 }
+            })
+            .catch(error => {
+                console.error("초기화 중 오류 발생", error);
+                alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
             });
         }
     </script>
