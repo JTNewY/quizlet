@@ -109,23 +109,21 @@ def main_page(request):
     return render(request, 'main/main_page.html', context)
 
 def reset_japanese_words(request):
-    # 세션에 남은 일본어 단어 목록이 없거나 비어있으면 초기화
-    if not request.session.get('remaining_japanese_words'):
-        words = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))
-        request.session['remaining_japanese_words'] = words  # 세션에 저장
-        
+    # 모든 일본어 단어 목록을 가져와 세션에 저장
+    words = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))
+    request.session['remaining_japanese_words'] = words  # 세션에 저장
 
 def reset_english_words(request):
-    # 세션에 남은 영어 단어 목록이 없거나 비어있으면 초기화
-    if not request.session.get('remaining_english_words'):
-        words = list(EnglishWord.objects.values('id', 'word', 'definition'))
-        request.session['remaining_english_words'] = words  # 세션에 저장
-        
+    # 모든 영어 단어 목록을 가져와 세션에 저장
+    words = list(EnglishWord.objects.values('id', 'word', 'definition'))
+    request.session['remaining_english_words'] = words  # 세션에 저장
+
 def reset_words_view(request):
     if request.method == 'POST':
         try:
-            reset_japanese_words(request)  # 일본어 단어가 없는 경우만 초기화
-            reset_english_words(request)   # 영어 단어가 없는 경우만 초기화
+            # 단어 목록을 강제로 초기화
+            reset_japanese_words(request)
+            reset_english_words(request)
 
             # 세션에서 현재 카운트 초기화
             request.session['current_count'] = 0  # 카운트 초기화
