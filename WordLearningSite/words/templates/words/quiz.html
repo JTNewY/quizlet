@@ -309,9 +309,9 @@
             $('#reset-quiz').on('click', function() {
                 $.ajax({
                     type: 'POST',
-                    url: '{% url "words:reset_words" %}', 
-                    data: {
-                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    url: '{% url "words:reset_words" %}',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
                     },
                     success: function(response) {
                         location.reload();  
