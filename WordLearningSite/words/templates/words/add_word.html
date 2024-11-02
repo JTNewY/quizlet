@@ -5,158 +5,107 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>단어 추가</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #eef2f3;
+            background: linear-gradient(to bottom, #e7f0ff, #ffffff);
             margin: 0;
             padding: 20px;
-            transition: background-color 0.3s, color 0.3s;
         }
 
         h2 {
             text-align: center;
             color: #333;
+            margin-bottom: 30px;
+        }
+
+        .form-container {
+            background: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
             margin-bottom: 20px;
         }
 
-        .slider {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px;
-            scroll-snap-type: x mandatory;
+        .form-control, .form-select {
+            border-radius: 5px;
+            border: 1px solid #007BFF;
         }
 
-        .word-card {
-            background: #ffffff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            padding: 20px;
-            text-align: center;
-            width: 200px;
-            margin-right: 15px;
-            scroll-snap-align: start;
-            flex-shrink: 0;
-            transition: transform 0.3s;
+        .form-control:focus, .form-select:focus {
+            border-color: #0056b3;
+            box-shadow: none;
         }
 
-        .word-card:hover {
-            transform: scale(1.05);
-        }
-
-        .word {
-            font-size: 1.5em;
-            color: #007BFF;
-            overflow-wrap: break-word;
-            margin: 5px 0;
-        }
-
-        .word-definition {
-            font-size: 0.9em;
-            color: #666;
-        }
-
-        .random-word-container {
-            display: flex;
-            justify-content: center; /* 수평 가운데 정렬 */
-            align-items: center;
-            flex-direction: column;
-            margin: 20px 0;
-            width: 100%; /* 전체 너비 사용 */
-        }
-
-        .random-word {
-            text-align: center;
-            width: 100%; /* 모바일에서 카드가 잘 보이도록 */
-        }
-
-        .button-container {
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        a {
-            display: inline-block;
+        .btn-submit {
             background-color: #28a745;
             color: white;
-            padding: 10px 15px;
+            width: 100%;
+            padding: 10px;
             border-radius: 5px;
-            text-decoration: none; /* 링크의 기본 밑줄 제거 */
+            border: none;
             transition: background-color 0.3s;
-            margin: 5px;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            text-align: center;
             font-size: 1.1em;
-        }
-
-        a:hover {
-            background-color: #28a745; /* 버튼 호버 색상 */
-            text-decoration: none; /* 호버 시 밑줄 제거 */
-        }
-
-        /* 다크 모드 스타일 */
-        .dark-mode {
-            background-color: #333;
-            color: #f2f2f2;
-        }
-
-        .dark-mode .word-card {
-            background: #444;
-            color: #f2f2f2;
-        }
-
-        .dark-mode .word-definition {
-            color: #ccc;
-        }
-
-        @media (max-width: 600px) {
-            .word-card {
-                width: 90%; /* 모바일에서 카드 너비 조정 */
-                margin-right: 0; /* 오른쪽 마진 제거 */
-                margin-bottom: 10px; /* 카드 사이 마진 추가 */
-            }
-
-            .random-word-container {
-                width: 90%; /* 모바일에서 카드 너비 조정 */
-            }
-
-            .slider {
-                flex-wrap: nowrap; /* 슬라이더가 한 줄에 표시되도록 */
-            }
-
-            a {
-                width: 90%; /* 버튼 너비 조정 */
-            }
         }
     </style>
 </head>
 <body>
     <h2>단어 추가</h2>
-    <form method="post">
-        {% csrf_token %}
-        <label for="kanji">한자 (선택사항):</label>
-        <input type="text" id="kanji" name="kanji" placeholder="한자를 입력하세요 (선택사항)">
-        
-        <label for="hiragana">히라가나:</label>
-        <input type="text" id="hiragana" name="hiragana" required placeholder="히라가나를 입력하세요">
-        
-        <label for="definition">뜻:</label>
-        <textarea id="definition" name="definition" required placeholder="뜻을 입력하세요"></textarea>
-        
-        <label for="unit-select">단원 선택:</label>
-        <select id="unit-select" name="unit" >
-            <option value="">단원을 선택하세요</option>
-            {% for unit in units %}
-                <option value="{{ unit }}">{{ unit }}</option>
-            {% endfor %}
-        </select>
+    <div class="form-container">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="kanji">한자 (선택사항):</label>
+                <input type="text" class="form-control" id="kanji" name="kanji" placeholder="한자를 입력하세요 (선택사항)">
+            </div>
 
-        <label for="unit-input">직접 입력:</label>
-        <input type="text" id="unit-input" name="custom_unit" placeholder="직접 단원을 입력하세요">
+            <div class="form-group">
+                <label for="hiragana">히라가나:</label>
+                <input type="text" class="form-control" id="hiragana" name="hiragana" required placeholder="히라가나를 입력하세요">
+            </div>
 
-        <button type="submit">추가하기</button>
-    </form>
-    <a href="{% url 'words:word_list' %}">단어 목록으로 돌아가기</a>
+            <div class="form-group">
+                <label for="definition">뜻:</label>
+                <textarea class="form-control" id="definition" name="definition" required placeholder="뜻을 입력하세요" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="unit-select">단원 선택:</label>
+                <select class="form-select" id="unit-select" name="unit">
+                    <option value="">단원을 선택하세요</option>
+                    {% for unit in units %}
+                        <option value="{{ unit }}">{{ unit }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="unit-input">직접 입력:</label>
+                <input type="text" class="form-control" id="unit-input" name="custom_unit" placeholder="직접 단원을 입력하세요">
+            </div>
+
+            <button type="submit" class="btn-submit">추가하기</button>
+        </form>
+        <a href="{% url 'words:word_list' %}" class="back-link">단어 목록으로 돌아가기</a>
+    </div>
     <script>
-        // 다크 모드 토글
+        // 다크 모드 토글 (추후 구현 필요)
     </script>
 </body>
 </html>
