@@ -131,13 +131,8 @@
     </style>
 </head>
 <body>
-    <div class="search-container text-center">
-        <form method="GET" action="{% url 'words:word_list' %}">
-            <input type="text" id="search-input" name="search" placeholder="단어를 검색하세요..." class="form-control" style="width: 300px; margin: 0 auto; display: inline-block;">
-            <button type="submit" class="btn btn-primary" style="margin-left: 10px;">검색</button>
-        </form>
-    </div>
-
+   
+    {% comment %} 랜덤단어 {% endcomment %}
     <div class="random-word-container">
         <div class="random-word">
             <h3>랜덤 단어</h3>
@@ -158,6 +153,14 @@
     </div>
     
     <h2>내 단어 목록 (총 {{ words|length }}개)</h2>
+    {% comment %} 단어 검색 {% endcomment %}
+    <div class="search-container text-center">
+        <form method="GET" action="{% url 'words:word_list' %}">
+            <input type="text" id="search-input" name="search" placeholder="단어를 검색하세요..." class="form-control" style="width: 300px; margin: 0 auto; display: inline-block;">
+            <button type="submit" class="btn btn-primary" style="margin-left: 10px;">검색</button>
+        </form>
+    </div>
+    {% comment %} 단어 {% endcomment %}
     <div class="slider">
         {% for word in words %}
             <div class="word-card">
