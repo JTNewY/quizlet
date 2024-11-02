@@ -310,9 +310,10 @@ def check_quiz(request):
                 'reset_quiz': True  # 초기화 요청 플래그 추가
             })
 
-        # 현재 카운트를 가져와서 업데이트
-        current_count = request.session['current_count']
-        request.session['current_count'] = current_count + 1  # 카운트 증가
+        # 정답일 경우에만 현재 카운트를 업데이트
+        if is_correct:
+            current_count = request.session['current_count']
+            request.session['current_count'] = current_count + 1  # 카운트 증가
 
         return JsonResponse({
             'is_correct': is_correct,

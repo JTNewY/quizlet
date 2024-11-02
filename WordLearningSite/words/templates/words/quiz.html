@@ -264,30 +264,35 @@
                     url: '{% url "words:check_quiz" %}',
                     data: $(this).serialize(),
                     success: function(response) {
-                        const resultMessage = response.is_correct ? 
+                        // 퀴즈 결과에 따라 카운터 업데이트 여부 결정
+                        const isCorrect = response.is_correct;
+                        const remainingCountElement = $('#remaining-count');
+                        let remainingCount = parseInt(remainingCountElement.text());
+    
+                        // 정답 확인 후 결과 출력
+                        const resultMessage = isCorrect ? 
                             '<p class="correct">정답입니다!</p>' : 
                             '<p class="incorrect">틀렸습니다.</p>';
-        
+    
                         $('#result').html('<h3>퀴즈 결과</h3>' + 
                             resultMessage +
                             '<p>정답 히라가나는 <br>"' + response.correct_hiragana + '"입니다.</p>' +
                             '<p>정답 뜻: <br>"' + response.correct_definition + '"입니다.</p>' +
                             '<button id="next-quiz">다음 퀴즈</button>'
                         );
-        
-                        // 남은 단어 수 동적으로 업데이트는 제거
-                        // $('#remaining-count').text(response.remaining_count);
-                        
-                        // 현재 카운트 업데이트 제거
-                        // const currentCount = parseInt($('#current-count').val()) + 1; 
-                        // $('#current-count').val(currentCount); 
-        
+    
                         // 남은 단어 수가 0인지 확인
-                        if (response.remaining_count === 0) {
+                        if (remainingCount === 0) {
                             alert('모든 단어를 완료했습니다! 퀴즈를 초기화합니다.');
                             resetQuiz();
                         }
-        
+    
+                        // 정답일 경우만 카운터를 감소시킴
+                        if (isCorrect) {
+                            remainingCount--;
+                            remainingCountElement.text(remainingCount);
+                        }
+    
                         $('#next-quiz').on('click', function() {
                             const unitParam = new URLSearchParams(window.location.search).get('unit');
                             window.location.href = '{% url "words:quiz" %}?unit=' + unitParam;
@@ -301,23 +306,23 @@
                     }
                 });
             });
-        
+    
             $('#show-hiragana').on('click', function() {
                 $('#hiragana-display').toggle();
             });
-        
+    
             $('#play-audio').on('click', function() {
                 const kanji = "{{ correct_word.hiragana }}"; 
                 const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(kanji)}&tl=ja&client=gtx`;
                 const audio = new Audio(audioUrl);
                 audio.play();
             });
-        
+    
             $('#reset-quiz').on('click', function() {
                 resetQuiz();
             });
         });
-        
+    
         function resetQuiz() {
             fetch('{% url "words:reset_words" %}', {
                 method: 'POST',

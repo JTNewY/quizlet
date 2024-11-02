@@ -223,8 +223,8 @@
     <h2>퀴즈</h2>
     <div id="progress">
         <p class="small-text">총 단어 수: {{ total_words }}</p>
-        <p class="small-text">현재 카운트: <span id="current-count">{{ current_count }}</span></p>
-        <p class="small-text">남은 단어 수: <span id="remaining-count">{{ total_words|add:"-current_count" }}</span></p> <!-- 수정된 부분 -->
+        <input type="hidden" id="current-count" value="{{ current_count }}">
+        <p class="small-text">남은 단어 수: <span id="remaining-count">{{ remaining_count }}</span></p>
         <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
     </div>
     
@@ -267,34 +267,75 @@
                         const resultMessage = response.is_correct ? 
                             '<p class="correct">정답입니다!</p>' : 
                             '<p class="incorrect">틀렸습니다.</p>';
-                        $('#result').html(resultMessage);
-                        
-                        // 현재 카운트 업데이트 및 남은 단어 수 계산
-                        const currentCount = parseInt($('#current-count').text()) + 1;
-                        $('#current-count').text(currentCount);
-                        $('#remaining-count').text({{ total_words }} - currentCount); // 남은 단어 수 업데이트
+        
+                        $('#result').html('<h3>퀴즈 결과</h3>' + 
+                            resultMessage +
+                            '<p>정답 히라가나는 <br>"' + response.correct_hiragana + '"입니다.</p>' +
+                            '<p>정답 뜻: <br>"' + response.correct_definition + '"입니다.</p>' +
+                            '<button id="next-quiz">다음 퀴즈</button>'
+                        );
+        
+                        // 남은 단어 수가 0인지 확인
+                        if (response.remaining_count === 0) {
+                            alert('모든 단어를 완료했습니다! 퀴즈를 초기화합니다.');
+                            resetQuiz();
+                        }
+        
+                        $('#next-quiz').on('click', function() {
+                            const unitParam = new URLSearchParams(window.location.search).get('unit');
+                            window.location.href = '{% url "words:quiz" %}?unit=' + unitParam;
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result').html('<h3>오류 발생</h3>' + 
+                            '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>'
+                        );
+                        console.log(error);
                     }
                 });
             });
-
-            // 리셋 버튼 클릭 이벤트
-            $('#reset-quiz').on('click', function() {
-                $('#current-count').text(0);
-                $('#remaining-count').text({{ total_words }}); // 리셋 시 남은 단어 수 다시 초기화
-                $('#result').empty();
-            });
-
-            // 히라가나 보기 버튼 클릭 이벤트
+        
             $('#show-hiragana').on('click', function() {
                 $('#hiragana-display').toggle();
             });
-
-            // 음성 듣기 버튼 클릭 이벤트
+        
             $('#play-audio').on('click', function() {
-                const audio = new Audio("{% static 'audio/' %}{{ correct_word.audio_file }}");
+                const kanji = "{{ correct_word.hiragana }}"; 
+                const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(kanji)}&tl=ja&client=gtx`;
+                const audio = new Audio(audioUrl);
                 audio.play();
             });
+        
+            $('#reset-quiz').on('click', function() {
+                resetQuiz();
+            });
         });
+        
+        function resetQuiz() {
+            fetch('{% url "words:reset_words" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // UI 요소를 리셋하지만 페이지를 리로드하지 않음
+                    $('#current-count').val(0); // 현재 카운트는 0으로 리셋
+                    $('#remaining-count').text({{ total_words }}); // 남은 카운트를 전체 단어 수로 리셋
+                    $('#result').empty(); // 결과 섹션 비우기
+                    alert('퀴즈가 초기화되었습니다.'); // 사용자에게 알림
+                } else {
+                    console.error("초기화 중 오류 발생");
+                    alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
+                }
+            })
+            .catch(error => {
+                console.error("초기화 중 오류 발생", error);
+                alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            });
+        }
     </script>
 </body>
 </html>
