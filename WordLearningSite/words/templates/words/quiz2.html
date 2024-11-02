@@ -8,215 +8,263 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/dark.css' %}" id="dark-mode-stylesheet" disabled>
     <style>
+        /* 기본 스타일 */
         body {
             font-family: Arial, sans-serif;
-            background-color: #eef2f3; /* 배경 색상 */
+            background-color: #eef2f3;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            align-items: center; /* 중앙 정렬 */
-            min-height: 100vh; /* 최소 높이 설정 */
+            align-items: center;
+            min-height: 100vh;
+            transition: background-color 0.3s, color 0.3s;
         }
 
         h2 {
-            color: #333; /* 제목 색상 */
+            color: #333;
             margin-bottom: 20px;
-            text-align: center; /* 중앙 정렬 */
-            font-size: 2em; /* 제목 크기 */
+            text-align: center;
+            font-size: 2em;
+        }
+
+        .unit-select {
+            margin-top: 20px;
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            text-decoration: none;
+            transition: background-color 0.3s;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .unit-select:hover {
+            background-color: #0056b3;
         }
 
         #quiz-form {
-            background: white; /* 폼 배경색 */
-            border-radius: 10px; /* 둥근 모서리 */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
             padding: 20px;
-            width: 90%; /* 모바일에 적합한 너비 */
-            max-width: 600px; /* 최대 너비 설정 */
-            box-sizing: border-box; /* 박스 크기 설정 */
+            width: 90%;
+            max-width: 600px;
+            box-sizing: border-box;
         }
 
         p {
-            font-size: 1.2em; /* 글씨 크기 조정 */
-            margin: 10px 0; /* 간격 조정 */
-            word-wrap: break-word; /* 긴 단어 줄바꿈 */
-            text-align: center; /* 중앙 정렬 */
+            font-size: 1.2em;
+            margin: 10px 0;
+            text-align: center;
         }
 
         label {
-            margin-left: 10px; /* 레이블과 라디오 버튼 간격 */
-            font-size: 1.1em; /* 레이블 크기 조정 */
+            margin-left: 10px;
+            font-size: 1.1em;
         }
 
         input[type="radio"] {
-            margin-right: 10px; /* 라디오 버튼과 레이블 간격 */
+            margin-right: 10px;
         }
 
         button {
-            background-color: #28a745; /* 버튼 배경 색상 */
-            color: white; /* 버튼 글자 색상 */
-            padding: 12px 15px; /* 버튼 패딩 */
-            border: none; /* 테두리 없애기 */
-            border-radius: 5px; /* 둥근 버튼 */
-            cursor: pointer; /* 커서 포인터로 변경 */
-            width: 100%; /* 버튼 폭을 100%로 */
-            margin-top: 10px; /* 버튼 위 간격 */
-            transition: background-color 0.3s; /* 배경색 전환 효과 */
-            font-size: 0.9em; /* 버튼 글씨 크기 조정 */
+            background-color: #28a745;
+            color: white;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+            font-size: 1em;
         }
 
         button:hover {
-            background-color: #218838; /* 호버 시 배경 색상 변화 */
+            background-color: #218838;
         }
 
         #result {
             margin-top: 20px;
-            text-align: center; /* 결과 텍스트 중앙 정렬 */
-            width: 90%; /* 결과 영역 너비 */
-            max-width: 600px; /* 최대 너비 설정 */
-            background: white; /* 결과 배경색 */
-            border-radius: 10px; /* 둥근 모서리 */
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2); /* 그림자 효과 */
-            padding: 15px; /* 내부 여백 */
-            box-sizing: border-box; /* 박스 크기 설정 */
+            text-align: center;
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            box-sizing: border-box;
         }
 
         .correct {
-            color: green; /* 정답일 때 글자 색상 */
+            color: green;
         }
 
         .incorrect {
-            color: red; /* 오답일 때 글자 색상 */
+            color: red;
         }
 
         a {
-            margin-top: 20px; /* 링크와 결과 간격 */
-            color: #007BFF; /* 링크 색상 */
-            text-decoration: none; /* 밑줄 제거 */
-            font-weight: bold; /* 글자 두껍게 */
-            transition: color 0.3s; /* 색상 전환 효과 */
-            text-align: center; /* 중앙 정렬 */
+            margin-top: 20px;
+            color: #007BFF;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+            text-align: center;
         }
 
         a:hover {
-            color: #0056b3; /* 호버 시 색상 변화 */
+            color: #0056b3;
         }
 
         #progress {
-            font-size: 0.8em; /* 남은 단어 수 글씨 크기 작게 조정 */
-            margin: 10px 0; /* 간격 조정 */
-            padding: 10px; /* 패딩 추가 */
-            background-color: #e7f3fe; /* 진행 상태 배경 색상 */
-            color: #31708f; /* 진행 상태 글자 색상 */
-            border-radius: 5px; /* 둥근 모서리 */
-            text-align: center; /* 중앙 정렬 */
+            font-size: 0.8em;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #e7f3fe;
+            color: #31708f;
+            border-radius: 5px;
+            text-align: center;
         }
 
         .reset-button {
-            padding: 5px 10px; /* 초기화 버튼 패딩 */
-            font-size: 0.8em; /* 초기화 버튼 글씨 크기 작게 조정 */
-            background-color: #ffc107; /* 초기화 버튼 색상 */
-            margin-top: 10px; /* 위 간격 조정 */
-            cursor: pointer; /* 커서 포인터로 변경 */
+            padding: 5px 10px;
+            font-size: 0.8em;
+            background-color: #ffc107;
+            margin-top: 10px;
+            cursor: pointer;
         }
 
         .reset-button:hover {
-            background-color: #e0a800; /* 호버 시 색상 변화 */
+            background-color: #e0a800;
+        }
+
+        .loading {
+            display: none;
+            font-size: 1.2em;
+            text-align: center;
+            margin-top: 10px;
         }
 
         @media (max-width: 600px) {
             #quiz-form {
-                width: 95%; /* 모바일에서 폼 너비 조정 */
+                width: 95%;
             }
+
             button {
-                padding: 15px; /* 버튼 패딩 조정 */
-                font-size: 0.9em; /* 버튼 글씨 크기 조정 */
+                padding: 15px;
+                font-size: 0.9em;
             }
         }
     </style>
 </head>
 <body>
+    <a href="{% url 'words:select_unit2' %}" class="unit-select">단원 선택하기</a>
+    <p>선택된 단원: <strong>{{ selected_unit }}</strong></p>
+
     <h2>퀴즈 2</h2>
     <div id="progress">
-        <p>남은 단어 수: {{ remaining_count }}</p> <!-- 남은 단어 수 표시 -->
-        <button class="reset-button" id="reset-quiz">퀴즈 초기화</button> <!-- 초기화 버튼 추가 -->
+        <p class="small-text">총 단어 수: {{ total_words }}</p>
+        <p class="small-text" style="display: none;">현재 카운트: <span id="current-count">{{ current_count }}</span></p>
+        <p class="small-text">남은 단어 수: <span id="remaining-count">{{ remaining_count }}</span></p>
+        <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
     </div>
     <p>다음 뜻에 해당하는 히라가나는 무엇인가요?</p>
     <p><strong>뜻: "{{ correct_word.definition }}"</strong></p>
+
     <form id="quiz-form" method="post">
         {% csrf_token %}
         <input type="hidden" name="correct_hiragana" value="{{ correct_word.hiragana }}">
         {% for word in selected_words %}
             <div>
-                <input type="radio" name="selected_hiragana" value="{{ word.hiragana }}" id="{{ word.hiragana }}" class="hiragana-option">
+                <input type="radio" name="selected_hiragana" value="{{ word.hiragana }}" id="{{ word.hiragana }}" class="hiragana-option" required>
                 <label for="{{ word.hiragana }}">{{ word.hiragana }}</label>
             </div>
         {% endfor %}
-        <button type="submit">제출하기</button>
+        <button type="submit" id="submit-button">제출하기</button>
     </form>
 
     <a href="/words/jp">메뉴로 가기</a>
 
-    <div id="result"></div>
+    <div id="result" aria-live="polite"></div>
+    <div class="loading" id="loading-indicator">로딩 중...</div>
 
     <script>
-        $('#quiz-form').on('submit', function(event) {
-            event.preventDefault();
-            $.ajax({
-                type: 'POST',
-                url: '{% url "words:check_quiz2" %}',
-                data: $(this).serialize(),
-                success: function(response) {
-                    const resultMessage = response.is_correct ? 
-                        '<p class="correct">정답입니다!</p>' : 
-                        '<p class="incorrect">틀렸습니다.</p>';
+        $(document).ready(function() {
+            // 퀴즈 제출 처리
+            $('#quiz-form').on('submit', function(event) {
+                event.preventDefault(); // 기본 폼 제출 방지
+                $('#submit-button').prop('disabled', true); // 제출 버튼 비활성화
+                $('#loading-indicator').show(); // 로딩 표시
 
-                    $('#result').html('<h3>퀴즈 결과</h3>' + 
-                        resultMessage +
-                        '<p>정답 히라가나는 "' + response.correct_hiragana + '"입니다.</p>' +
-                        '<p>뜻: "' + response.correct_definition + '"입니다.</p>' +
-                        '<button id="next-quiz">다음 퀴즈</button>'
-                    );
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "words:check_quiz2" %}',
+                    data: $(this).serialize(),
+                    success: function(response) {
+                        const resultMessage = response.is_correct ? 
+                            '<p class="correct">정답입니다!</p>' : 
+                            '<p class="incorrect">틀렸습니다.</p>';
 
-                    $('#next-quiz').on('click', function() {
-                        window.location.href = '{% url "words:quiz2" %}';
-                    });
-                },
-                error: function(xhr, status, error) {
-                    $('#result').html('<h3>오류 발생</h3>' + 
-                        '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>'
-                    );
-                    console.log(error);
-                }
+                        $('#result').html('<h3>퀴즈 결과</h3>' + 
+                            resultMessage +
+                            '<p>정답 히라가나는 "' + response.correct_hiragana + '"입니다.</p>' +
+                            '<p>뜻: "' + response.correct_definition + '"입니다.</p>' +
+                            '<button id="next-quiz">다음 퀴즈</button>'
+                        );
+
+                        $('#next-quiz').on('click', function() {
+                            window.location.href = '{% url "words:quiz2" %}';
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        $('#result').html('<h3>오류 발생</h3>' + 
+                            '<p>퀴즈 결과를 가져오는 데 문제가 발생했습니다. 다시 시도해주세요.</p>' +
+                            '<p>상세 오류: ' + xhr.responseText + '</p>' 
+                        );
+                        console.log(error);
+                    },
+                    complete: function() {
+                        $('#submit-button').prop('disabled', false); // 버튼 다시 활성화
+                        $('#loading-indicator').hide(); // 로딩 표시 숨김
+                    }
+                });
+            });
+
+            // 퀴즈 초기화 처리
+            $('#reset-quiz').on('click', function() {
+                resetQuiz();
             });
         });
-
-        $('#reset-quiz').on('click', function() {
-            $.ajax({
-                type: 'POST',
-                url: '{% url "words:reset_words" %}', 
-                data: {
-                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+        function resetQuiz() {
+            fetch('{% url "words:reset_words" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
                 },
-                success: function(response) {
-                    location.reload();  
-                },
-                error: function(xhr, status, error) {
+                credentials: 'same-origin'
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reset UI elements without reloading the page
+                    $('#current-count').text(0); // Reset current count to 0
+                    $('#remaining-count').text({{ total_words }}); // Reset remaining count to total words
+                    $('#result').empty(); // Clear the result section
+                    alert('퀴즈가 초기화되었습니다.'); // Inform user
+                } else {
+                    console.error("초기화 중 오류 발생");
                     alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
-                    console.log(error);
                 }
+            })
+            .catch(error => {
+                console.error("초기화 중 오류 발생", error);
+                alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
             });
-        });
-     
-    
-        if (localStorage.getItem('dark-mode') === 'enabled') {
-            document.body.classList.add('dark-mode');
-            const icon = document.getElementById('toggle-dark-mode').querySelector('i');
-            icon.classList.toggle('fa-moon');
-            icon.classList.toggle('fa-sun');
         }
-    
     </script>
- 
 </body>
 </html>

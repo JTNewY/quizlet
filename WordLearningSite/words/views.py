@@ -35,6 +35,21 @@ def select_unit(request):
             return redirect('words:unit_quiz_view')  # 퀴즈 페이지로 리다이렉트
 
     return render(request, 'words/select_unit.html', {'units': units})
+
+def select_unit2(request):
+    units = Word.objects.values_list('unit', flat=True).distinct()  # 단원 목록 가져오기
+    
+    # 사용자가 선택한 단원 저장
+    if request.method == 'POST':
+        selected_unit = request.POST.get('unit')
+        if selected_unit:
+            request.session['selected_unit2'] = selected_unit  # 세션에 선택한 단원 저장
+            return redirect('words:unit_quiz_view2')  # 퀴즈 페이지로 리다이렉트
+
+    return render(request, 'words/select_unit2.html', {'units': units})
+
+
+
 def unit_quiz_view(request):
     if request.method == 'POST':
         unit = request.POST.get('unit')
@@ -53,6 +68,25 @@ def unit_quiz_view(request):
                 messages.error(request, "선택한 단원에 단어가 없습니다.")
 
     return redirect('words:jp_unit_list')
+
+def unit_quiz_view2(request):
+    if request.method == 'POST':
+        unit = request.POST.get('unit')  # 단원 정보를 POST로 가져옴
+        if unit:
+            words = Word.objects.filter(unit=unit)  # 선택한 단원의 단어들 가져오기
+            if words.exists():
+                # 단어 목록을 세션에 저장
+                request.session['remaining_japanese_words'] = list(words.values('id', 'kanji', 'hiragana', 'definition'))
+                request.session['selected_unit'] = unit  # 선택한 단원도 세션에 저장
+
+                # current_count 초기화
+                request.session['current_count'] = 0  # 기존에 'current_count'가 없으면 0으로 초기화
+
+                return redirect('words:quiz2')  # 퀴즈 2 페이지로 리다이렉트
+            else:
+                messages.error(request, "선택한 단원에 단어가 없습니다.")  # 단어가 없을 경우 메시지 표시
+
+    return redirect('words:jp_unit_list')  # POST가 아닐 경우 단원 목록으로 리다이렉트
 
 # 일본어 단원 목록
 def jp_unit_list(request):
@@ -255,57 +289,83 @@ def check_quiz(request):
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
 def quiz2_view(request):
-    remaining_words = request.session.get('remaining_japanese_words', [])
+    # 선택된 단원 가져오기 (기본값은 '전체')
+    unit = request.GET.get('unit', '전체')
+
+    # 전체 단어 또는 선택된 단원 단어 가져오기
+    if unit == '전체':
+        remaining_words = list(Word.objects.all())  # 전체 단어 가져오기
+    else:
+        remaining_words = list(Word.objects.filter(unit=unit))  # 선택된 단원 단어 가져오기
 
     if not remaining_words:  # 단어 리스트가 비어있으면 초기화
         reset_japanese_words(request)  # 초기화 함수 호출
-        remaining_words = request.session['remaining_japanese_words']
+        remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
+
+    # 세션에서 이미 사용한 단어 가져오기
+    used_words = request.session.get('used_words', [])
+
+    # 남은 단어에서 사용된 단어를 제외
+    remaining_words = [word for word in remaining_words if word.id not in used_words]
 
     total_words = len(remaining_words)  # 총 단어 수
 
+    # 최소 3개 이상의 단어가 필요
     if total_words < 3:
         return render(request, 'words/quiz2.html', {
             'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.'
         })
 
+    # 정답 단어 선택
     correct_word_data = random.choice(remaining_words)
-    other_words = [word for word in remaining_words if word['id'] != correct_word_data['id']]
+    other_words = [word for word in remaining_words if word.id != correct_word_data.id]
 
+    # 다른 단어가 2개 이상인지 확인
     if len(other_words) < 2:
         return render(request, 'words/quiz2.html', {
             'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
         })
 
+    # 정답 단어와 랜덤으로 2개의 다른 단어 선택
     selected_words = [correct_word_data] + random.sample(other_words, 2)
-    random.shuffle(selected_words)
+    random.shuffle(selected_words)  # 단어 순서 섞기
+
+    # 사용한 단어 추가
+    used_words.append(correct_word_data.id)
+    request.session['used_words'] = used_words
 
     remaining_words.remove(correct_word_data)  # 사용한 단어 제거
-    request.session['remaining_japanese_words'] = remaining_words  # 업데이트된 단어 리스트 저장
+    request.session['remaining_japanese_words'] = [serialize_word(word) for word in remaining_words]  # 직렬화하여 저장
 
-    remaining_count = len(remaining_words)  # 남은 단어 수
+    remaining_count = len(remaining_words)  # 남은 단어 수 계산
 
+    # 카운트 초기화 및 설정
+    if 'current_count' not in request.session:
+        request.session['current_count'] = 0  # 카운트 초기화는 여기서만
+
+    current_count = request.session['current_count']  # 현재 카운트 가져오기
+    remaining_count = total_words - current_count  # 남은 단어 수 계산
+
+    # 퀴즈 화면 렌더링
     return render(request, 'words/quiz2.html', {
-        'selected_words': selected_words,
-        'correct_word': correct_word_data,
+        'selected_words': [serialize_word(word) for word in selected_words],  # 직렬화하여 전달
+        'correct_word': serialize_word(correct_word_data),  # 직렬화하여 전달
         'total_words': total_words,
-        'remaining_count': remaining_count,
+        'remaining_count': remaining_count,  # 수정된 남은 단어 수
+        'current_count': current_count,  # 현재 카운트 전달
+        'selected_unit': unit  # 선택된 단원 전달
     })
-
-
 
 
 def check_quiz2(request):
     if request.method == 'POST':
-        selected_hiragana = request.POST.get('selected_hiragana')  # 선택한 히라가나
+        selected_hiragana = request.POST.get('selected_hiragana')  # Get the selected hiragana
         correct_hiragana = request.POST.get('correct_hiragana')
 
-        # 정답 비교
-        is_correct = selected_hiragana == correct_hiragana
-
-        # 정답 단어를 DB에서 찾기 (히라가나로 검색)
+        # Find the correct word in the database using hiragana
         correct_word = Word.objects.filter(hiragana=correct_hiragana).first()
 
-        # 정답 단어가 없을 경우, 히라가나만 반환
+        # If the correct word is not found, return the correct hiragana
         if correct_word is None:
             return JsonResponse({
                 'is_correct': False,
@@ -314,11 +374,17 @@ def check_quiz2(request):
             })
 
         correct_definition = correct_word.definition
+        is_correct = selected_hiragana == correct_hiragana  # Compare the selected hiragana
+
+        # Increment the current quiz count
+        current_count = request.session.get('current_count', 0)
+        request.session['current_count'] = current_count + 1  # Save the updated count
 
         return JsonResponse({
             'is_correct': is_correct,
             'correct_hiragana': correct_hiragana,
             'correct_definition': correct_definition,
+            'current_count': request.session['current_count'],  # Return the current count
         })
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
