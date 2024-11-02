@@ -219,13 +219,15 @@ def quiz_view(request):
     if unit == '전체':
         # 전체 단어 가져오기
         remaining_words = list(Word.objects.all())
-        total_words = len(remaining_words)  # 전체 단어 수 설정
     else:
         # 선택된 단원 단어 가져오기
         remaining_words = list(Word.objects.filter(unit=unit))
-        total_words = len(Word.objects.filter(unit=unit))  # 해당 단원의 전체 단어 수 설정
 
-    if not remaining_words:  # 단어 리스트가 비어있으면 초기화
+    # 전체 단어 수 설정
+    total_words = len(remaining_words)
+
+    # 단어 리스트가 비어있으면 초기화
+    if not remaining_words:
         reset_japanese_words(request)  # 초기화 함수 호출
         remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
         total_words = len(remaining_words)  # 초기화 후 전체 단어 수 재설정
@@ -300,21 +302,22 @@ def check_quiz(request):
         # 남은 단어 수는 세션에서 가져온 남은 단어를 기준으로 설정
         remaining_count = len(request.session.get('remaining_japanese_words', []))
 
-        # 정답일 경우에만 현재 카운트를 업데이트
-        if is_correct:
-            current_count = request.session['current_count']
-            request.session['current_count'] = current_count + 1  # 카운트 증가
-
-        # 남은 단어 수가 0일 경우 초기화 요청 메시지 반환
+        # 남은 단어 수가 0일 경우 초기화 요청
         if remaining_count == 0:
             reset_japanese_words(request)  # 초기화 호출
+            remaining_count = len(request.session.get('remaining_japanese_words', []))  # 초기화 후 남은 단어 수 다시 계산
             return JsonResponse({
                 'is_correct': is_correct,
                 'correct_hiragana': correct_hiragana,
                 'correct_definition': correct_definition,
-                'remaining_count': 0,  # 초기화 후 남은 단어 수
+                'remaining_count': remaining_count,  # 초기화 후 남은 단어 수
                 'reset_quiz': True  # 초기화 요청 플래그 추가
             })
+
+        # 정답일 경우에만 현재 카운트를 업데이트
+        if is_correct:
+            current_count = request.session['current_count']
+            request.session['current_count'] = current_count + 1  # 카운트 증가
 
         return JsonResponse({
             'is_correct': is_correct,
