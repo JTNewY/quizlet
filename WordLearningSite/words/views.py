@@ -1,4 +1,5 @@
 from .models import Word, EnglishWord, QuizResult, VisitorCount
+from django.db.models import Q
 from .forms import WordForm, EnglishWordForm
 from django.contrib.auth.decorators import login_required
 import random
@@ -167,14 +168,29 @@ def reset_words_view(request):
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
+
 def word_list(request):
-    words = Word.objects.all()  # 모든 단어 조회
-    random_word = random.choice(words) if words.exists() else None
+    # 요청에서 검색 쿼리를 가져옵니다.
+    search_query = request.GET.get('search', '')  # 검색어가 없으면 빈 문자열로 기본 설정
+    
+    # 검색어가 있는 경우 필터링
+    if search_query:
+        words = Word.objects.filter(
+            Q(kanji__icontains=search_query) |  # kanji 필드로 검색
+            Q(hiragana__icontains=search_query) |  # hiragana 필드로 검색
+            Q(definition__icontains=search_query)  # definition 필드로 검색
+        )
+    else:
+        words = Word.objects.all()  # 검색어가 없으면 모든 단어 조회
+    
+    # 단어가 있으면 랜덤 단어 선택
+    random_word = random.choice(words) if words.exists() else None  
+
     return render(request, 'words/word_list.html', {
         'words': words,
         'random_word': random_word,
+        'search_query': search_query,  # 검색어를 템플릿에 전달 (선택적)
     })
-
 @login_required
 def add_word(request):
     # 기존 단원 목록 가져오기 (중복 제거)
