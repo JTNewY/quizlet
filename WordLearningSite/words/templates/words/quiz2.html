@@ -218,8 +218,10 @@
                         );
 
                         $('#next-quiz').on('click', function() {
-                            window.location.href = '{% url "words:quiz2" %}';
+                            const unitParam = new URLSearchParams(window.location.search).get('unit');
+                            window.location.href = '{% url "words:quiz2" %}?unit=' + unitParam;
                         });
+
                     },
                     error: function(xhr, status, error) {
                         $('#result').html('<h3>오류 발생</h3>' + 
