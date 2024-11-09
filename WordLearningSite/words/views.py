@@ -144,6 +144,9 @@ def main_page(request):
     return render(request, 'main/main_page.html', context)
 
 def reset_japanese_words(request):
+    # 사용한 단어 초기화
+    request.session['used_words'] = []  # 사용한 단어 리스트를 빈 리스트로 초기화
+
     # 모든 일본어 단어 목록을 가져와 세션에 저장
     words = list(Word.objects.values('id', 'kanji', 'hiragana', 'definition'))
     request.session['remaining_japanese_words'] = words  # 세션에 저장
@@ -226,26 +229,27 @@ def quiz_view(request):
     # 전체 단어 수 설정
     total_words = len(remaining_words)
 
-    # 단어 리스트가 비어있으면 초기화
-    if not remaining_words:
-        reset_japanese_words(request)  # 초기화 함수 호출
-        remaining_words = list(Word.objects.all())  # 초기화 후 다시 가져오기
-        total_words = len(remaining_words)  # 초기화 후 전체 단어 수 재설정
-        # 초기화 메시지를 사용자에게 보여주기 위해 처리
-        reset_message = '초기화 처리되었습니다.'  # 초기화 메시지 설정
-    else:
-        reset_message = None  # 초기화가 필요하지 않을 경우 메시지 없음
-
     # 세션에서 이미 사용한 단어 가져오기
     used_words = request.session.get('used_words', [])
 
     # 남은 단어에서 사용된 단어를 제외
     remaining_words = [word for word in remaining_words if word.id not in used_words]
 
-    if len(remaining_words) < 3:  # 남은 단어가 3개 미만일 경우
-        return render(request, 'words/quiz.html', {
-            'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.'
-        })
+    # 남은 단어 수가 3개 미만일 경우
+    if len(remaining_words) < 3:
+        # 사용된 단어를 초기화하고 다시 가져오기
+        request.session['used_words'] = []  # 사용한 단어 초기화
+        remaining_words = list(Word.objects.filter(unit=unit))  # 단어 다시 가져오기
+        remaining_words = [word for word in remaining_words if word.id not in request.session['used_words']]
+        
+        if len(remaining_words) < 3:
+            return render(request, 'words/quiz.html', {
+                'error_message': '퀴즈를 시작하려면 최소 3개의 단어가 필요합니다. 단어를 추가해주세요.',
+                'total_words': total_words,
+                'remaining_count': total_words,
+                'selected_unit': unit,
+                'reset_message': None
+            })
 
     # 정답 단어 선택
     correct_word_data = random.choice(remaining_words)
@@ -253,7 +257,11 @@ def quiz_view(request):
 
     if len(other_words) < 2:  # 정답 외에 2개의 다른 단어가 필요
         return render(request, 'words/quiz.html', {
-            'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.'
+            'error_message': '퀴즈를 구성할 수 있는 단어가 부족합니다.',
+            'total_words': total_words,
+            'remaining_count': len(remaining_words),
+            'selected_unit': unit,
+            'reset_message': None
         })
 
     selected_words = [correct_word_data] + random.sample(other_words, 2)
@@ -282,8 +290,10 @@ def quiz_view(request):
         'remaining_count': remaining_count,  # 수정된 남은 단어 수
         'current_count': current_count,  # 현재 카운트 전달
         'selected_unit': unit,  # 선택된 단원 전달
-        'reset_message': reset_message  # 초기화 메시지 전달
+        'reset_message': None  # 초기화 메시지 없음
     })
+
+
 def check_quiz(request):
     if request.method == 'POST':
         selected_definition = request.POST.get('selected_definition')  # 선택한 뜻
