@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>퀴즈</title>
+    <link rel="shortcut icon" href="{% static 'assets/favicon.ico' %}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* 기본 스타일 */
@@ -97,12 +98,13 @@
             background-color: #218838;
         }
 
-        .reset-button {
+        .reset-button, .load-words-button {
             padding: 5px 10px;
             font-size: 0.9em;
             background-color: #ffc107;
             margin-top: 5px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            width: auto;
         }
 
         .reset-button:hover {
@@ -189,7 +191,7 @@
                 font-size: 1.4em;
             }
 
-            button, .reset-button {
+            button, .reset-button, .load-words-button {
                 padding: 8px;
                 font-size: 1em;
             }
@@ -226,6 +228,7 @@
         <input type="hidden" id="current-count" value="{{ current_count }}">
         <p class="small-text">남은 단어 수: <span id="remaining-count">{{ remaining_count }}</span></p>
         <button class="reset-button" id="reset-quiz">퀴즈 초기화</button>
+        <button class="load-words-button" id="load-words">단어 불러오기</button>
     </div>
     
     {% if correct_word %}
@@ -309,6 +312,11 @@
             $('#reset-quiz').on('click', function() {
                 resetQuiz();
             });
+
+            // 단어 불러오기 버튼 클릭 시
+            $('#load-words').on('click', function() {
+                loadWords();
+            });
         });
         
         function resetQuiz() {
@@ -334,6 +342,31 @@
             .catch(error => {
                 console.error("초기화 중 오류 발생", error);
                 alert('초기화 중 오류가 발생했습니다. 다시 시도해 주세요.');
+            });
+        }
+
+        function loadWords() {
+            fetch('{% url "words:load_words" %}', { // 단어 불러오기 요청을 보내는 URL
+                method: 'GET',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 가져온 단어 수에 따라 UI 업데이트
+                    $('#remaining-count').text(data.remaining_count);
+                    $('#current-count').val(data.current_count);
+                    alert('단어가 성공적으로 불러와졌습니다.');
+                } else {
+                    alert('단어를 불러오는 데 실패했습니다. 다시 시도해 주세요.');
+                }
+            })
+            .catch(error => {
+                console.error("단어 불러오기 중 오류 발생", error);
+                alert('단어를 불러오는 데 오류가 발생했습니다. 다시 시도해 주세요.');
             });
         }
     </script>

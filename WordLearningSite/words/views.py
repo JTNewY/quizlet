@@ -332,6 +332,19 @@ def check_quiz(request):
 
     return JsonResponse({'error': 'Invalid request method.'}, status=400)
 
+def get_new_word(request):
+    if request.method == "GET":
+        selected_words = list(Word.objects.all())
+        if not selected_words:  # 단어가 없을 경우 처리
+            return JsonResponse({'error': 'No words available.'}, status=404)
+
+        new_word = random.choice(selected_words)  # 랜덤 단어 선택
+        return JsonResponse({
+            'new_word': new_word.kanji,
+            'new_hiragana': new_word.hiragana,
+            'new_definition': new_word.definition
+        })
+
 def quiz2_view(request):
     # 선택된 단원 가져오기 (기본값은 '전체')
     unit = request.GET.get('unit', '전체')

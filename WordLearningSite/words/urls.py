@@ -25,6 +25,7 @@ urlpatterns = [
     path('reset_words/', views.reset_words_view, name='reset_words'),
     path('select_unit/', views.select_unit, name='select_unit'),
     path('select_unit2/', views.select_unit2, name='select_unit2'),
+    path('get_new_word/', views.get_new_word, name='get_new_word'),
     
     
     # 영어 관련 URL
