@@ -30,7 +30,8 @@ ALLOWED_HOSTS = [
     "cloudtype.app", 
     "www.cloudtype.app", 
     "0.0.0.0",
-    "port-0-quizlet-m2u67qojefce5ecc.sel4.cloudtype.app",  # 추가된 도메인
+    "port-0-quizlet-m2u67qojefce5ecc.sel4.cloudtype.app",  # 기존 도메인
+    "jtnewy01.shop",  # 추가된 도메인
 ]
 
 # Application definition
@@ -129,5 +130,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CSRF_TRUSTED_ORIGINS = [
     "https://cloudtype.app",
     "https://www.cloudtype.app",
-    "https://port-0-quizlet-m2u67qojefce5ecc.sel4.cloudtype.app",  # 추가된 도메인
+    "https://port-0-quizlet-m2u67qojefce5ecc.sel4.cloudtype.app",  # 기존 도메인
+    "https://jtnewy01.shop",  # 추가된 도메인
 ]
