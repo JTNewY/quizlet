@@ -13,17 +13,18 @@
     </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // 단원별 슬라이더가 항상 보이도록 설정
-            const sliders = document.querySelectorAll('.slider');
-            sliders.forEach(slider => {
-                slider.style.display = 'flex';  // 모든 단원 슬라이더를 항상 보이도록 설정
-            });
-
-            // 단원 목록을 드래그 가능하게 설정
-            const unitList = document.getElementById('unit-list');
-            new Sortable(unitList, {
-                animation: 150,
-                ghostClass: 'sortable-ghost'
+            // 단원 버튼 클릭 시 슬라이더 보이기/숨기기 기능
+            const unitButtons = document.querySelectorAll('.unit-button');
+            
+            unitButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const slider = document.getElementById('slider-' + button.textContent.trim());
+                    if (slider.style.display === 'none' || slider.style.display === '') {
+                        slider.style.display = 'flex';  // 클릭 시 보이기
+                    } else {
+                        slider.style.display = 'none';  // 이미 보이면 숨기기
+                    }
+                });
             });
         });
 
@@ -51,9 +52,9 @@
     <div id="unit-list">
         {% for unit in units %}
             <div class="unit-container">
-                <!-- 단원 버튼을 클릭해도 단원 슬라이더가 바뀌지 않음 -->
+                <!-- 단원 버튼을 클릭하면 해당 슬라이더만 보이게 설정 -->
                 <button class="unit-button">{{ unit.unit }}</button>
-                <div class="slider" id="slider-{{ unit.unit }}">
+                <div class="slider" id="slider-{{ unit.unit }}" style="display: none;">
                     {% for word in words_by_unit|get_item:unit.unit %}
                         <div class="word-card">
                             <p class="word">
