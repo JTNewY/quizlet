@@ -12,31 +12,20 @@
         /* Add your CSS styles here */
     </style>
     <script>
-        function toggleUnit(unitId) {
+        document.addEventListener('DOMContentLoaded', function() {
+            // 단원별 슬라이더가 항상 보이도록 설정
             const sliders = document.querySelectorAll('.slider');
             sliders.forEach(slider => {
-                slider.style.display = 'none';
+                slider.style.display = 'flex';  // 모든 단원 슬라이더를 항상 보이도록 설정
             });
-            const selectedSlider = document.getElementById(unitId);
-            selectedSlider.style.display = (selectedSlider.style.display === 'flex') ? 'none' : 'flex';
-        }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const firstSlider = document.querySelector('.slider');
-            if (firstSlider) {
-                firstSlider.style.display = 'flex';
-            }
-
+            // 단원 목록을 드래그 가능하게 설정
             const unitList = document.getElementById('unit-list');
             new Sortable(unitList, {
                 animation: 150,
                 ghostClass: 'sortable-ghost'
             });
         });
-
-        function startQuiz() {
-            window.location.href = '/words/jp_quiz/?unit=전체';
-        }
 
         function openKanjiSearch(kanjiWord) {
             // 한자 단어를 구성하는 각 문자의 UTF-16 코드 포인트를 얻어 연결
@@ -62,7 +51,8 @@
     <div id="unit-list">
         {% for unit in units %}
             <div class="unit-container">
-                <button class="unit-button" onclick="toggleUnit('slider-{{ unit.unit }}')">{{ unit.unit }}</button>
+                <!-- 단원 버튼을 클릭해도 단원 슬라이더가 바뀌지 않음 -->
+                <button class="unit-button">{{ unit.unit }}</button>
                 <div class="slider" id="slider-{{ unit.unit }}">
                     {% for word in words_by_unit|get_item:unit.unit %}
                         <div class="word-card">
